@@ -1,0 +1,234 @@
+/**
+ * ============================================================
+ * AGENDA KEGIATAN - OJK
+ * File: Code.gs  (VERSI API — untuk dipanggil dari GitHub Pages)
+ * ============================================================
+ * Perbedaan dari versi sebelumnya:
+ * - Tidak lagi merender HTML (HtmlService) karena tampilan sekarang
+ *   di-host terpisah di GitHub Pages.
+ * - doGet()  -> menyediakan data (action=list)
+ * - doPost() -> menerima aksi tulis (login, simpan, hapus)
+ * - Semua respons berupa JSON, dipanggil dari frontend via fetch().
+ *
+ * CARA SETUP:
+ * 1. Buat project baru di https://script.google.com
+ * 2. Hapus isi default, tempel isi file ini ke Code.gs
+ * 3. Ganti CONFIG.SPREADSHEET_ID dan CONFIG.ADMIN_PASSWORD di bawah.
+ * 4. Klik Deploy > New deployment > pilih tipe "Web app"
+ *      - Execute as       : Me
+ *      - Who has access   : Anyone
+ * 5. Salin URL yang dihasilkan (diakhiri /exec), lalu tempel ke
+ *    APPS_SCRIPT_URL di file site/index.html.
+ * ============================================================
+ */
+
+const CONFIG = {
+  SPREADSHEET_ID: "1TavTepPzvBp4l_yL9muJ4yyEX3CBhVATFLQ_10G9KPI",
+  ADMIN_PASSWORD: "ADMINOJK"
+};
+
+const NAMA_SHEET_AGENDA = "Agenda Kegiatan";
+
+/**
+ * ROUTER GET
+ * Dipanggil frontend untuk MEMBACA data, contoh:
+ *   {APPS_SCRIPT_URL}?action=list
+ */
+function doGet(e) {
+  var action = (e && e.parameter && e.parameter.action) || "list";
+  var hasil;
+
+  try {
+    if (action === "list") {
+      hasil = { sukses: true, data: getDaftarAgenda() };
+    } else {
+      hasil = { sukses: false, pesan: "Action GET tidak dikenal: " + action };
+    }
+  } catch (err) {
+    hasil = { sukses: false, pesan: "Error server: " + err.toString() };
+  }
+
+  return jsonOutput_(hasil);
+}
+
+/**
+ * ROUTER POST
+ * Dipanggil frontend untuk MENULIS data (login, simpan, hapus).
+ * Body request berupa JSON, contoh:
+ *   { "action": "simpan", "payload": { ... field agenda ... } }
+ *
+ * PENTING: dikirim dengan Content-Type "text/plain" dari frontend
+ * (bukan "application/json") supaya browser tidak melakukan CORS
+ * preflight (OPTIONS) — karena Apps Script Web App tidak bisa
+ * menjawab preflight tersebut.
+ */
+function doPost(e) {
+  var hasil;
+
+  try {
+    var body = JSON.parse(e.postData.contents);
+    var action = body.action;
+    var payload = body.payload || {};
+
+    if (action === "login") {
+      hasil = prosesLoginAdmin(payload.password);
+    } else if (action === "simpan") {
+      hasil = simpanAgenda(payload);
+    } else if (action === "hapus") {
+      hasil = hapusAgenda(payload);
+    } else {
+      hasil = { sukses: false, pesan: "Action POST tidak dikenal: " + action };
+    }
+  } catch (err) {
+    hasil = { sukses: false, pesan: "Error server: " + err.toString() };
+  }
+
+  return jsonOutput_(hasil);
+}
+
+function jsonOutput_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/** Ambil (atau buat baru kalau belum ada) sheet Agenda Kegiatan, lengkap header. */
+function getOrBuatSheetAgenda_() {
+  var ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(NAMA_SHEET_AGENDA);
+  if (!sheet) {
+    sheet = ss.insertSheet(NAMA_SHEET_AGENDA);
+    sheet.appendRow([
+      "ID", "Nomor Surat", "Tanggal", "Jam Mulai", "Jam Selesai",
+      "Judul Agenda", "Jabatan", "Tempat", "Dihadiri Oleh", "Link Kegiatan", "Keterangan"
+    ]);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+/**
+ * LOGIN ADMIN
+ */
+function prosesLoginAdmin(password) {
+  try {
+    if (password && password.toString().trim() === CONFIG.ADMIN_PASSWORD) {
+      return { sukses: true, pesan: "Berhasil masuk sebagai Admin." };
+    }
+    return { sukses: false, pesan: "Password admin salah!" };
+  } catch (e) {
+    return { sukses: false, pesan: "Error: " + e.toString() };
+  }
+}
+
+/** Helper: cek ulang password admin di setiap aksi tulis (simpan/hapus). */
+function passwordValid_(password) {
+  return !!password && password.toString().trim() === CONFIG.ADMIN_PASSWORD;
+}
+
+/**
+ * AMBIL SELURUH DATA AGENDA
+ */
+function getDaftarAgenda() {
+  var sheet = getOrBuatSheetAgenda_();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  var data = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+  var hasil = [];
+
+  data.forEach(function (row) {
+    if (!row[0]) return;
+    var tglObj = row[2] instanceof Date ? row[2] : new Date(row[2]);
+    if (isNaN(tglObj.getTime())) return;
+
+    hasil.push({
+      id: row[0].toString(),
+      nomorSurat: row[1] ? row[1].toString() : "-",
+      tanggal: Utilities.formatDate(tglObj, "Asia/Jakarta", "yyyy-MM-dd"),
+      jamMulai: row[3] ? row[3].toString() : "-",
+      jamSelesai: row[4] ? row[4].toString() : "-",
+      judul: row[5] ? row[5].toString() : "(Tanpa judul)",
+      jabatan: row[6] ? row[6].toString() : "Pegawai",
+      tempat: row[7] ? row[7].toString() : "-",
+      dihadiri: row[8] ? row[8].toString() : "-",
+      link: row[9] ? row[9].toString() : "",
+      keterangan: row[10] ? row[10].toString() : ""
+    });
+  });
+
+  return hasil;
+}
+
+/**
+ * SIMPAN AGENDA (tambah baru ATAU update kalau data.id sudah ada)
+ * data wajib menyertakan "password" agar tidak sembarang orang bisa
+ * menulis langsung ke endpoint tanpa lewat form admin.
+ */
+function simpanAgenda(data) {
+  try {
+    if (!passwordValid_(data.password)) {
+      return { sukses: false, pesan: "Akses ditolak. Silakan login sebagai admin terlebih dahulu." };
+    }
+    if (!data.judul || !data.tanggal) {
+      return { sukses: false, pesan: "Judul agenda dan tanggal wajib diisi!" };
+    }
+
+    var sheet = getOrBuatSheetAgenda_();
+
+    if (data.id) {
+      var lastRow = sheet.getLastRow();
+      if (lastRow >= 2) {
+        var idKolom = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+        for (var i = 0; i < idKolom.length; i++) {
+          if (idKolom[i][0] && idKolom[i][0].toString() === data.id.toString()) {
+            var rowTarget = i + 2;
+            sheet.getRange(rowTarget, 1, 1, 11).setValues([[
+              data.id, data.nomorSurat || "-", data.tanggal, data.jamMulai || "-", data.jamSelesai || "-",
+              data.judul, data.jabatan || "Pegawai", data.tempat || "-", data.dihadiri || "-",
+              data.link || "", data.keterangan || ""
+            ]]);
+            return { sukses: true, pesan: "Agenda berhasil diperbarui." };
+          }
+        }
+      }
+    }
+
+    var idBaru = "AG-" + new Date().getTime();
+    sheet.appendRow([
+      idBaru, data.nomorSurat || "-", data.tanggal, data.jamMulai || "-", data.jamSelesai || "-",
+      data.judul, data.jabatan || "Pegawai", data.tempat || "-", data.dihadiri || "-",
+      data.link || "", data.keterangan || ""
+    ]);
+    return { sukses: true, pesan: "Agenda baru berhasil ditambahkan.", id: idBaru };
+  } catch (e) {
+    return { sukses: false, pesan: "Gagal menyimpan: " + e.toString() };
+  }
+}
+
+/**
+ * HAPUS AGENDA
+ * payload: { id, password }
+ */
+function hapusAgenda(payload) {
+  try {
+    if (!passwordValid_(payload.password)) {
+      return { sukses: false, pesan: "Akses ditolak. Silakan login sebagai admin terlebih dahulu." };
+    }
+    var id = payload.id;
+    var sheet = getOrBuatSheetAgenda_();
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) return { sukses: false, pesan: "Data agenda kosong." };
+
+    var idKolom = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < idKolom.length; i++) {
+      if (idKolom[i][0] && idKolom[i][0].toString() === id.toString()) {
+        sheet.deleteRow(i + 2);
+        return { sukses: true, pesan: "Agenda berhasil dihapus." };
+      }
+    }
+    return { sukses: false, pesan: "Agenda tidak ditemukan." };
+  } catch (e) {
+    return { sukses: false, pesan: "Gagal menghapus: " + e.toString() };
+  }
+}
