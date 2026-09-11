@@ -9,6 +9,8 @@
  * - doGet()  -> menyediakan data (action=list)
  * - doPost() -> menerima aksi tulis (login, simpan, hapus)
  * - Semua respons berupa JSON, dipanggil dari frontend via fetch().
+ * - onEditAutoId() -> auto-isi ID kalau baris ditambah langsung di
+ *   spreadsheet (bukan lewat web) dan kolom ID dibiarkan kosong.
  *
  * CARA SETUP:
  * 1. Buat project baru di https://script.google.com
@@ -19,11 +21,14 @@
  *      - Who has access   : Anyone
  * 5. Salin URL yang dihasilkan (diakhiri /exec), lalu tempel ke
  *    APPS_SCRIPT_URL di file site/index.html.
+ * 6. Di dropdown pemilih fungsi (atas editor), pilih "buatTriggerOnEdit",
+ *    klik Run (sekali saja), lalu Allow izin yang diminta.
+ *    Ini akan mengaktifkan auto-ID saat edit langsung di spreadsheet.
  * ============================================================
  */
 
 const CONFIG = {
-  SPREADSHEET_ID: "1TavTepPzvBp4l_yL9muJ4yyEX3CBhVATFLQ_10G9KPI",
+  SPREADSHEET_ID: "1s-XBuN0bpzOEoB4KJxksBtPDu8A66MqIVnwquLMBUaY",
   ADMIN_PASSWORD: "ADMINOJK"
 };
 
@@ -231,4 +236,50 @@ function hapusAgenda(payload) {
   } catch (e) {
     return { sukses: false, pesan: "Gagal menghapus: " + e.toString() };
   }
+}
+
+/**
+ * AUTO-GENERATE ID
+ * Jalan otomatis tiap kali ada edit di sheet "Agenda Kegiatan".
+ * Kalau kolom ID (A) kosong tapi Judul (F) atau Tanggal (C) sudah diisi,
+ * ID akan otomatis diisi. Berguna kalau kamu menambah baris langsung
+ * di spreadsheet (bukan lewat web) dan lupa mengisi ID.
+ */
+function onEditAutoId(e) {
+  try {
+    var sheet = e.range.getSheet();
+    if (sheet.getName() !== NAMA_SHEET_AGENDA) return;
+
+    var startRow = e.range.getRow();
+    var numRows = e.range.getNumRows();
+
+    for (var i = 0; i < numRows; i++) {
+      var row = startRow + i;
+      if (row === 1) continue; // lewati baris header
+
+      var idCell = sheet.getRange(row, 1);
+      var judulCell = sheet.getRange(row, 6);
+      var tanggalCell = sheet.getRange(row, 3);
+
+      if (!idCell.getValue() && (judulCell.getValue() || tanggalCell.getValue())) {
+        idCell.setValue("AG-" + new Date().getTime() + "-" + row);
+      }
+    }
+  } catch (err) {
+    // silent, supaya tidak mengganggu proses edit manual di spreadsheet
+  }
+}
+
+/**
+ * JALANKAN FUNGSI INI SEKALI SAJA secara manual dari editor Apps Script
+ * (pilih dari dropdown fungsi, lalu klik Run) untuk memasang trigger
+ * onEditAutoId di atas. Setelah trigger terpasang, tidak perlu dijalankan
+ * lagi — cukup sekali seumur project.
+ */
+function buatTriggerOnEdit() {
+  var ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  ScriptApp.newTrigger('onEditAutoId')
+    .forSpreadsheet(ss)
+    .onEdit()
+    .create();
 }
