@@ -54,13 +54,16 @@
   .wrap { width: 100%; max-width: 1800px; margin: 0 auto; padding: 22px 28px; }
 
   /* ===== TOPBAR ===== */
+  .topbar-stick-wrap {
+    position: sticky; top: 0; z-index: 500;
+    padding-top: 12px; margin-bottom: 4px;
+    background: var(--bg-main);
+  }
   .topbar {
-    background: linear-gradient(180deg, #ffffff, #fbf9f7);
-    border-radius: 18px; padding: 12px 18px; margin-bottom: 16px;
+    background: #ffffff;
+    border-radius: 18px; padding: 12px 18px; margin-bottom: 12px;
     border: 1px solid var(--border-color); box-shadow: var(--e2), var(--inset-hi);
     display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
-    position: sticky; top: 12px; z-index: 500;
-    backdrop-filter: blur(10px);
   }
   .topbar-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .header-logo {
@@ -374,7 +377,8 @@
   }
 
   @media (max-width: 640px) {
-    .topbar { flex-direction: column; align-items: stretch; position: static; }
+    .topbar-stick-wrap { position: static; padding-top: 0; }
+    .topbar { flex-direction: column; align-items: stretch; }
     .topbar-search { order: 3; width: 100%; }
     .topbar-nav { order: 4; width: 100%; justify-content: space-between; }
     .nav-pill { flex: 1; justify-content: center; padding: 0 8px; }
@@ -418,6 +422,7 @@
 <div class="wrap">
 
   <!-- ==================== TOPBAR ==================== -->
+  <div class="topbar-stick-wrap">
   <div class="topbar">
     <div class="topbar-brand">
       <div class="header-logo"><i class="fas fa-calendar-days"></i></div>
@@ -441,6 +446,7 @@
       <button class="icon-btn btn-refresh" title="Refresh data" onclick="muatUlangData()"><i class="fas fa-rotate"></i> Refresh</button>
       <button class="icon-btn" id="btnFullscreen" title="Layar penuh" onclick="toggleFullscreen()"><i class="fas fa-expand" id="iconFullscreen"></i></button>
     </div>
+  </div>
   </div>
 
   <!-- ==================== BAR ADMIN (muncul setelah login) ==================== -->
