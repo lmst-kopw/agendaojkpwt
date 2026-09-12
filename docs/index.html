@@ -338,10 +338,12 @@
   .btn-cetak-laporan:hover { transform: translateY(-1px); box-shadow: var(--e2); }
   .laporan-cetak { padding: 26px 28px; background: #fff; }
   .laporan-header {
-    display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding-bottom: 16px;
+    overflow: hidden; margin-bottom: 20px; padding-bottom: 16px;
     border-bottom: 2px solid #7c1230;
+    page-break-inside: avoid; break-inside: avoid;
   }
-  .laporan-logo { height: 56px; width: auto; flex-shrink: 0; }
+  .laporan-logo { height: 56px; width: auto; float: left; margin-right: 20px; }
+  .laporan-judul-group { overflow: hidden; }
   .laporan-judul-utama { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 19px; color: #222; }
   .laporan-judul-sub { font-size: 14px; font-weight: 600; color: #444; margin-top: 2px; }
   .laporan-periode { font-size: 12.5px; color: #666; font-weight: 600; margin-top: 5px; }
@@ -353,26 +355,27 @@
   .laporan-tabel th.kolom-jam, .laporan-tabel td.kolom-jam { white-space: nowrap; min-width: 100px; }
   .laporan-tabel tbody tr:nth-child(even) { background: #f7f4f1; }
   .laporan-footer {
-    display: flex; justify-content: space-between; align-items: flex-end; gap: 14px;
-    margin-top: 22px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 11px; color: #555;
+    overflow: hidden; margin-top: 22px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 11px; color: #555;
+    page-break-inside: avoid; break-inside: avoid;
   }
-  .laporan-footer-alamat { max-width: 80%; }
-  .laporan-footer-halaman { flex-shrink: 0; font-weight: 700; white-space: nowrap; }
+  .laporan-footer-alamat { float: left; max-width: 80%; }
+  .laporan-footer-halaman { float: right; font-weight: 700; white-space: nowrap; }
 
   @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
 
     body > *:not(#modalLaporan) { display: none !important; }
     #modalLaporan {
-      position: static !important; background: none !important; padding: 0 !important;
+      position: static !important; background: #fff !important; padding: 0 !important;
       display: block !important; backdrop-filter: none !important;
     }
+    #modalLaporan .modal-box,
     #modalLaporan .modal-box-laporan {
-      max-width: 100% !important; width: 100% !important; max-height: none !important;
-      box-shadow: none !important; border: none !important; display: block !important;
+      background: #fff !important; box-shadow: none !important; border: none !important; border-radius: 0 !important;
+      max-width: 100% !important; width: 100% !important; max-height: none !important; display: block !important;
     }
-    #modalLaporan .modal-body { overflow: visible !important; padding: 0 !important; }
-    #modalLaporanCetak { padding: 0 !important; }
+    #modalLaporan .modal-body { overflow: visible !important; padding: 0 !important; background: #fff !important; flex: none !important; }
+    #modalLaporanCetak { padding: 0 !important; background: #fff !important; }
     .modal-laporan-noprint { display: none !important; }
 
     @page { size: A4 landscape; margin: 16mm 14mm 14mm; }
