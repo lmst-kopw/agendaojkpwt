@@ -1264,7 +1264,7 @@
         var jamMulaiFmt = formatJam(item.jamMulai);
         var jamSelesaiFmt = formatJam(item.jamSelesai);
         var jamGabung = jamMulaiFmt + (jamSelesaiFmt !== '-' && jamSelesaiFmt !== jamMulaiFmt ? ('- ' + jamSelesaiFmt) : '');
-        teks += (idx + 1) + '. ' + item.judul + '\n\n';
+        teks += (idx + 1) + ') ' + item.judul + '\n\n';
         teks += '* Waktu    : ' + jamGabung + ' WIB\n';
         teks += '* Tempat    : ' + (item.tempat || '-') + '\n';
         teks += '* Dihadiri    : ' + (item.dihadiri || '-') + '\n\n';
