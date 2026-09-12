@@ -192,6 +192,10 @@
     min-width: 0; overflow: hidden;
   }
   .day-cell.kosong { background: transparent; border: none; }
+  .day-cell.luar-bulan {
+    background: transparent; border: 1px dashed var(--border-color); cursor: default; opacity: 0.5;
+  }
+  .day-cell.luar-bulan .day-number { color: var(--text-muted); font-weight: 600; }
   .day-cell.ada-agenda { cursor: pointer; box-shadow: var(--e1); }
   .day-cell.ada-agenda:hover { box-shadow: var(--e2); border-color: var(--red-ojk); transform: translateY(-2px); }
   .day-cell.hari-ini {
@@ -940,8 +944,11 @@
     var now = new Date();
     var html = '';
 
+    // Sel awal (sebelum tanggal 1) -> tampilkan angka akhir bulan sebelumnya, pudar & tidak bisa diklik
+    var jumlahHariBulanLalu = new Date(tahunAktif, bulanAktif - 1, 0).getDate();
     for (var i = 0; i < hariPertama; i++) {
-      html += '<div class="day-cell kosong"></div>';
+      var angkaBulanLalu = jumlahHariBulanLalu - hariPertama + 1 + i;
+      html += '<div class="day-cell luar-bulan"><div class="day-number">' + angkaBulanLalu + '</div></div>';
     }
 
     for (var d = 1; d <= jumlahHari; d++) {
@@ -970,6 +977,17 @@
         html += '<div class="day-agenda-more">+' + (listHariIni.length - maxTampil) + ' lainnya</div>';
       }
       html += '</div></div>';
+    }
+
+    // Sel akhir (setelah tanggal terakhir) -> tampilkan angka awal bulan berikutnya, pudar & tidak bisa diklik,
+    // supaya baris terakhir tetap penuh 7 kolom tanpa ikut memuat agenda bulan berikutnya.
+    var totalSelTerisi = hariPertama + jumlahHari;
+    var sisaKolom = totalSelTerisi % 7;
+    if (sisaKolom !== 0) {
+      var jumlahPengisi = 7 - sisaKolom;
+      for (var k = 1; k <= jumlahPengisi; k++) {
+        html += '<div class="day-cell luar-bulan"><div class="day-number">' + k + '</div></div>';
+      }
     }
 
     document.getElementById('calendarGrid').innerHTML = html;
