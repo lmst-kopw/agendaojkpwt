@@ -709,7 +709,9 @@
    */
   function ambilJamMenit(str) {
     if (!str || str === '-') return '';
-    var cocok = String(str).match(/(\d{1,2}):(\d{2})/);
+    // Terima format jam "10:00" (dari Date/jam bawaan Sheets) MAUPUN
+    // "10.00" (kalau kolomnya diisi manual sebagai teks pakai titik).
+    var cocok = String(str).match(/(\d{1,2})[:.](\d{2})/);
     if (!cocok) return '';
     var jam = ('0' + cocok[1]).slice(-2);
     return jam + ':' + cocok[2];
