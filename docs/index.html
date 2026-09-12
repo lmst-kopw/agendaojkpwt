@@ -358,9 +358,10 @@
   }
   .laporan-footer-alamat { max-width: 80%; }
   .laporan-footer-halaman { flex-shrink: 0; font-weight: 700; white-space: nowrap; }
-  .laporan-footer-cetak { display: none; }
 
   @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
     body > *:not(#modalLaporan) { display: none !important; }
     #modalLaporan {
       position: static !important; background: none !important; padding: 0 !important;
@@ -373,15 +374,6 @@
     #modalLaporan .modal-body { overflow: visible !important; padding: 0 !important; }
     #modalLaporanCetak { padding: 0 !important; }
     .modal-laporan-noprint { display: none !important; }
-
-    /* Alamat kantor sebagai footer yang berulang di tiap halaman cetak (position:fixed
-       diulang otomatis oleh browser di setiap halaman saat mencetak). Footer biasa di
-       bawah tabel (yang tampil di preview) disembunyikan supaya tidak dobel. */
-    .laporan-footer { display: none !important; }
-    .laporan-footer-cetak {
-      display: block !important; position: fixed; left: 0; right: 0; bottom: 0;
-      font-size: 9.5px; color: #666; text-align: center; border-top: 1px solid #ddd; padding-top: 5px;
-    }
 
     @page { size: A4 landscape; margin: 16mm 14mm 14mm; }
   }
@@ -1136,8 +1128,7 @@
       '<div class="laporan-footer">' +
       '<div class="laporan-footer-alamat">Kantor OJK Purwokerto, Jl. Jend. Gatot Subroto No. 46, Sokanegara, Kec. Purwokerto Tim., Kabupaten Banyumas, Jawa Tengah 53115</div>' +
       '<div class="laporan-footer-halaman">Halaman 1</div>' +
-      '</div>' +
-      '<div class="laporan-footer-cetak">Kantor OJK Purwokerto, Jl. Jend. Gatot Subroto No. 46, Sokanegara, Kec. Purwokerto Tim., Kabupaten Banyumas, Jawa Tengah 53115</div>';
+      '</div>';
 
     document.getElementById('modalLaporanCetak').innerHTML = html;
   }
