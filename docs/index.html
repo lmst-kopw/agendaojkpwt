@@ -173,14 +173,19 @@
     background: linear-gradient(180deg, #ffffff, #fbf9f7); border-radius: 20px; padding: 20px; margin-bottom: 22px;
     border: 1px solid var(--border-color); box-shadow: var(--e3), var(--inset-hi);
   }
-  .calendar-head-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin-bottom: 8px; }
+  .calendar-head-row {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin-bottom: 12px;
+    background: linear-gradient(165deg, var(--red-light), var(--red-ojk));
+    border-radius: 13px; padding: 4px 0;
+    box-shadow: 0 8px 18px -6px rgba(124,18,48,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
   .calendar-head-cell {
-    text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase;
-    color: var(--text-muted); padding: 6px 0; letter-spacing: 0.5px;
+    text-align: center; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+    color: #ffffff; padding: 8px 0; letter-spacing: 0.5px;
   }
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
   .day-cell {
-    min-height: 118px; border-radius: 13px; border: 1px solid var(--border-color);
+    min-height: 168px; border-radius: 13px; border: 1px solid var(--border-color);
     background: linear-gradient(180deg, #fdfcfb, #f7f4f1);
     padding: 7px; cursor: default; display: flex; flex-direction: column;
     transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
@@ -403,7 +408,7 @@
     .summary-cards-row { grid-template-columns: 1fr; }
     .month-nav-row { flex-direction: column; align-items: stretch; }
     .month-nav-box { justify-content: center; }
-    .day-cell { min-height: 68px; }
+    .day-cell { min-height: 92px; }
     .day-agenda-chip { font-size: 8.5px; }
     .month-nav-title { font-size: 16px; }
     .modal-box-detail { max-height: 92vh; }
@@ -953,7 +958,7 @@
       html += '<div class="day-number">' + d + '</div>';
       html += '<div class="day-agenda-list">';
 
-      var maxTampil = 3;
+      var maxTampil = 4;
       for (var j = 0; j < Math.min(listHariIni.length, maxTampil); j++) {
         var it = listHariIni[j];
         var warna = WARNA_JABATAN[it.jabatan] || '#888';
