@@ -290,6 +290,40 @@
   }
   .btn-detail-tabel:hover { background: var(--red-ojk); color: #fff; }
 
+  /* Kolom Jam dibuat lebih longgar supaya jam mulai-selesai tidak turun baris */
+  .tabel-agenda th.kolom-jam, .tabel-agenda td.kolom-jam { white-space: nowrap; min-width: 110px; }
+
+  /* ===== MODAL: PREVIEW / CETAK LAPORAN ===== */
+  .modal-box-laporan { max-width: 980px; max-height: 90vh; display: flex; flex-direction: column; }
+  .modal-box-laporan .modal-body { flex: 1; overflow-y: auto; }
+  .laporan-cetak { padding: 26px 28px; background: #fff; }
+  .laporan-judul { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 18px; color: #222; margin-bottom: 3px; }
+  .laporan-periode { font-size: 13px; color: #555; font-weight: 600; margin-bottom: 18px; }
+  .laporan-tabel { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .laporan-tabel th, .laporan-tabel td { border: 1px solid #ccc; padding: 7px 9px; text-align: left; vertical-align: top; }
+  .laporan-tabel th { background: #7c1230; color: #fff; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .laporan-tabel th.kolom-jam, .laporan-tabel td.kolom-jam { white-space: nowrap; min-width: 100px; }
+  .laporan-tabel tbody tr:nth-child(even) { background: #f7f4f1; }
+  .laporan-alamat { margin-top: 22px; font-size: 11px; color: #555; border-top: 1px solid #ddd; padding-top: 10px; }
+
+  @media print {
+    body * { visibility: hidden; }
+    #modalLaporanCetak, #modalLaporanCetak * { visibility: visible; }
+    #modalLaporanCetak {
+      position: absolute; left: 0; top: 0; width: 100%; padding: 0;
+    }
+    .modal-overlay#modalLaporan {
+      position: static !important; background: none !important; padding: 0 !important;
+      display: block !important;
+    }
+    .modal-box-laporan {
+      max-width: 100% !important; max-height: none !important; box-shadow: none !important; border: none !important;
+    }
+    .modal-box-laporan .modal-body { overflow: visible !important; }
+    .modal-laporan-noprint { display: none !important; }
+    @page { size: A4 landscape; margin: 14mm; }
+  }
+
 
   /* ===== MODAL DASAR (dipakai bersama oleh semua modal) ===== */
   .modal-overlay {
@@ -639,7 +673,7 @@
         <table class="tabel-agenda">
           <thead>
             <tr>
-              <th>No</th><th>Tanggal</th><th>Jam</th><th>Kategori</th><th>Nama Kegiatan</th>
+              <th>No</th><th>Tanggal</th><th class="kolom-jam">Jam</th><th>Kategori</th><th>Nama Kegiatan</th>
               <th>Tempat/Media</th><th>Dihadiri Oleh</th><th>Progres</th><th>Aksi</th>
             </tr>
           </thead>
@@ -670,6 +704,22 @@
       <div class="detailtgl-fields" id="detailTglFields">
         <!-- diisi lewat JS -->
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: PREVIEW / CETAK LAPORAN ==================== -->
+<div class="modal-overlay" id="modalLaporan">
+  <div class="modal-box modal-box-laporan">
+    <div class="modal-head modal-laporan-noprint">
+      <div class="modal-head-title">Preview Laporan</div>
+      <button class="modal-close" onclick="tutupModal('modalLaporan')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="padding: 0;">
+      <div id="modalLaporanCetak" class="laporan-cetak"></div>
+    </div>
+    <div class="modal-foot modal-laporan-noprint">
+      <button class="btn-flat btn-flat-edit" onclick="window.print()"><i class="fas fa-print"></i> Cetak / Unduh PDF</button>
     </div>
   </div>
 </div>
@@ -973,7 +1023,7 @@
       html += '<tr>';
       html += '<td>' + (idx + 1) + '</td>';
       html += '<td>' + tglFmt + '</td>';
-      html += '<td>' + jamGabung + '</td>';
+      html += '<td class="kolom-jam">' + jamGabung + '</td>';
       html += '<td><span class="tabel-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escapeHtml(item.jabatan) + '</span></td>';
       html += '<td>' + escapeHtml(item.judul) + '</td>';
       html += '<td>' + escapeHtml(item.tempat || '-') + '</td>';
@@ -996,8 +1046,29 @@
     bukaModal('modalDetailTanggal');
   }
 
-  /** Susun HTML laporan (dipakai untuk Preview maupun Unduh PDF -- keduanya lewat cetak/print bawaan browser). */
-  function bangunHtmlLaporan() {
+  /** Label periode yang tampil di kop laporan, mengikuti filter Periode yang sedang aktif. */
+  function labelPeriodeLaporan() {
+    var now = new Date();
+    if (filterPeriodeAktif === 'BULAN_INI') {
+      return NAMA_BULAN[now.getMonth()] + ' ' + now.getFullYear();
+    }
+    if (filterPeriodeAktif === 'MINGGU_INI') {
+      var awal = new Date(now); awal.setDate(now.getDate() - now.getDay());
+      var akhir = new Date(awal); akhir.setDate(awal.getDate() + 6);
+      return awal.getDate() + ' - ' + akhir.getDate() + ' ' + NAMA_BULAN[akhir.getMonth()] + ' ' + akhir.getFullYear();
+    }
+    if (filterPeriodeAktif === 'HARI_INI') {
+      return now.getDate() + ' ' + NAMA_BULAN[now.getMonth()] + ' ' + now.getFullYear();
+    }
+    if (filterPeriodeAktif === 'BESOK') {
+      var besok = new Date(now); besok.setDate(now.getDate() + 1);
+      return besok.getDate() + ' ' + NAMA_BULAN[besok.getMonth()] + ' ' + besok.getFullYear();
+    }
+    return 'Semua';
+  }
+
+  /** Susun isi laporan (dipakai untuk Preview maupun Unduh PDF -- keduanya lewat modal + cetak bawaan browser). */
+  function isiModalLaporan() {
     var list = ambilAgendaSesuaiFilter();
     var baris = list.map(function (item, idx) {
       var tglObj = new Date(item.tanggal + 'T00:00:00');
@@ -1008,7 +1079,7 @@
       return '<tr>' +
         '<td>' + (idx + 1) + '</td>' +
         '<td>' + tglFmt + '</td>' +
-        '<td>' + jamGabung + '</td>' +
+        '<td class="kolom-jam">' + jamGabung + '</td>' +
         '<td>' + escapeHtml(item.jabatan) + '</td>' +
         '<td>' + escapeHtml(item.judul) + '</td>' +
         '<td>' + escapeHtml(item.tempat || '-') + '</td>' +
@@ -1017,41 +1088,29 @@
         '</tr>';
     }).join('');
 
-    return '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">' +
-      '<title>Daftar Kegiatan - OJK Purwokerto</title>' +
-      '<style>' +
-      'body{font-family:Arial,Helvetica,sans-serif;padding:26px;color:#222;}' +
-      'h1{font-size:18px;margin:0 0 2px;}' +
-      'p.sub{font-size:12px;color:#666;margin:0 0 18px;}' +
-      'table{width:100%;border-collapse:collapse;font-size:11px;}' +
-      'th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;}' +
-      'th{background:#7c1230;color:#fff;}' +
-      'tbody tr:nth-child(even){background:#f7f4f1;}' +
-      '@media print{@page{size:A4 landscape;margin:14mm;}}' +
-      '</style></head><body>' +
-      '<h1>Daftar Kegiatan Kantor OJK Purwokerto</h1>' +
-      '<p class="sub">Dicetak ' + new Date().toLocaleString('id-ID') + ' &middot; ' + list.length + ' kegiatan sesuai filter aktif</p>' +
-      '<table><thead><tr><th>No</th><th>Tanggal</th><th>Jam</th><th>Kategori</th><th>Nama Kegiatan</th><th>Tempat/Media</th><th>Dihadiri Oleh</th><th>Progres</th></tr></thead>' +
-      '<tbody>' + baris + '</tbody></table>' +
-      '</body></html>';
+    if (list.length === 0) {
+      baris = '<tr><td colspan="8" style="text-align:center;color:#888;">Tidak ada agenda sesuai filter saat ini.</td></tr>';
+    }
+
+    var html = '<div class="laporan-judul">Daftar Kegiatan Kantor OJK Purwokerto</div>' +
+      '<div class="laporan-periode">Periode : ' + labelPeriodeLaporan() + '</div>' +
+      '<table class="laporan-tabel"><thead><tr>' +
+      '<th>No</th><th>Tanggal</th><th class="kolom-jam">Jam</th><th>Kategori</th><th>Nama Kegiatan</th><th>Tempat/Media</th><th>Dihadiri Oleh</th><th>Progres</th>' +
+      '</tr></thead><tbody>' + baris + '</tbody></table>' +
+      '<div class="laporan-alamat">Kantor OJK Purwokerto, Jl. Jend. Gatot Subroto No. 46, Sokanegara, Kec. Purwokerto Tim., Kabupaten Banyumas, Jawa Tengah 53115</div>';
+
+    document.getElementById('modalLaporanCetak').innerHTML = html;
   }
 
   function previewLaporanPdf() {
-    var w = window.open('', '_blank');
-    if (!w) { tampilkanToast('Popup diblokir browser, izinkan popup untuk melihat preview.', 'error'); return; }
-    w.document.open();
-    w.document.write(bangunHtmlLaporan());
-    w.document.close();
+    isiModalLaporan();
+    bukaModal('modalLaporan');
   }
 
   function unduhLaporanPdf() {
-    var w = window.open('', '_blank');
-    if (!w) { tampilkanToast('Popup diblokir browser, izinkan popup untuk mengunduh PDF.', 'error'); return; }
-    var html = bangunHtmlLaporan().replace('</body>',
-      '<script>window.onload = function(){ window.print(); };<' + '/script></body>');
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
+    isiModalLaporan();
+    bukaModal('modalLaporan');
+    setTimeout(function () { window.print(); }, 250);
   }
 
   // ===================== FILTER =====================
