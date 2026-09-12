@@ -359,11 +359,11 @@
     page-break-inside: avoid; break-inside: avoid;
   }
   .laporan-footer-alamat { float: left; max-width: 80%; }
-  .laporan-footer-halaman { float: right; font-weight: 700; white-space: nowrap; }
 
   @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
 
+    html, body { background: #fff !important; }
     body > *:not(#modalLaporan) { display: none !important; }
     #modalLaporan {
       position: static !important; background: #fff !important; padding: 0 !important;
@@ -1130,7 +1130,6 @@
       '</tr></thead><tbody>' + baris + '</tbody></table>' +
       '<div class="laporan-footer">' +
       '<div class="laporan-footer-alamat">Kantor OJK Purwokerto, Jl. Jend. Gatot Subroto No. 46, Sokanegara, Kec. Purwokerto Tim., Kabupaten Banyumas, Jawa Tengah 53115</div>' +
-      '<div class="laporan-footer-halaman">Halaman 1</div>' +
       '</div>';
 
     document.getElementById('modalLaporanCetak').innerHTML = html;
