@@ -699,10 +699,26 @@
     return BADGE_JABATAN[jabatan] || { bg: '#eee', fg: '#555' };
   }
 
-  /** Format jam gaya Indonesia: "08:00" -> "08.00" */
+  /**
+   * Google Sheets kadang mengembalikan sel jam sebagai objek Date utuh
+   * (jadi keluar sebagai teks panjang seperti "Sun Dec 31 1899 10:00:00
+   * GMT+0700 (Waktu Indonesia Barat)"), bukan cuma "10:00". Fungsi ini
+   * selalu mengambil JAM:MENIT-nya saja, dari format apa pun yang datang
+   * dari server -- jadi jamnya tetap sama persis dengan yang diketik di
+   * spreadsheet, cuma dirapikan tampilannya.
+   */
+  function ambilJamMenit(str) {
+    if (!str || str === '-') return '';
+    var cocok = String(str).match(/(\d{1,2}):(\d{2})/);
+    if (!cocok) return '';
+    var jam = ('0' + cocok[1]).slice(-2);
+    return jam + ':' + cocok[2];
+  }
+
+  /** Format jam gaya Indonesia untuk ditampilkan: "10:00" -> "10.00" */
   function formatJam(j) {
-    if (!j || j === '-') return '-';
-    return j.replace(':', '.');
+    var hm = ambilJamMenit(j);
+    return hm ? hm.replace(':', '.') : '-';
   }
 
   /** Progres kegiatan dihitung otomatis dari tanggal (tanpa perlu field tambahan di data). */
@@ -896,7 +912,7 @@
   function bukaDetailTanggal(tglIso, idTerpilih) {
     var list = semuaAgenda.filter(function (item) { return item.tanggal === tglIso; });
     if (list.length === 0) return;
-    list.sort(function (a, b) { return (a.jamMulai || '').localeCompare(b.jamMulai || ''); });
+    list.sort(function (a, b) { return ambilJamMenit(a.jamMulai).localeCompare(ambilJamMenit(b.jamMulai)); });
 
     window._modalTglAktif = tglIso;
     window._modalListAktif = list;
@@ -986,7 +1002,7 @@
       return;
     }
 
-    listHariIni.sort(function(a,b){ return (a.jamMulai||'').localeCompare(b.jamMulai||''); });
+    listHariIni.sort(function(a,b){ return ambilJamMenit(a.jamMulai).localeCompare(ambilJamMenit(b.jamMulai)); });
 
     var html = '';
     listHariIni.forEach(function (item) {
@@ -1087,8 +1103,8 @@
       document.getElementById('fJabatan').value = itemUntukEdit.jabatan;
       document.getElementById('fJudul').value = itemUntukEdit.judul;
       document.getElementById('fTanggal').value = itemUntukEdit.tanggal;
-      document.getElementById('fJamMulai').value = itemUntukEdit.jamMulai === '-' ? '' : itemUntukEdit.jamMulai;
-      document.getElementById('fJamSelesai').value = itemUntukEdit.jamSelesai === '-' ? '' : itemUntukEdit.jamSelesai;
+      document.getElementById('fJamMulai').value = ambilJamMenit(itemUntukEdit.jamMulai);
+      document.getElementById('fJamSelesai').value = ambilJamMenit(itemUntukEdit.jamSelesai);
       document.getElementById('fTempat').value = itemUntukEdit.tempat === '-' ? '' : itemUntukEdit.tempat;
       document.getElementById('fDihadiri').value = itemUntukEdit.dihadiri === '-' ? '' : itemUntukEdit.dihadiri;
       document.getElementById('fLink').value = itemUntukEdit.link || '';
