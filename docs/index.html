@@ -249,6 +249,48 @@
   .empty-state { text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 13px; }
   .empty-state i { font-size: 26px; margin-bottom: 8px; display: block; color: #d8cdd0; }
 
+  /* ===== TAMPILAN TABEL: DAFTAR KEGIATAN ===== */
+  .table-card {
+    background: linear-gradient(180deg, #ffffff, #fbf9f7); border-radius: 20px; padding: 20px;
+    border: 1px solid var(--border-color); box-shadow: var(--e3), var(--inset-hi); margin-bottom: 20px;
+  }
+  .table-card-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+  }
+  .table-card-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 17px; color: var(--navy-dark); }
+  .table-card-sub { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+  .table-card-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-laporan {
+    height: 40px; padding: 0 16px; border-radius: 20px; border: none; font-weight: 700; font-size: 12.5px;
+    display: flex; align-items: center; gap: 7px; color: #fff; box-shadow: var(--e1);
+  }
+  .btn-laporan:hover { transform: translateY(-1px); box-shadow: var(--e2); }
+  .btn-laporan-preview { background: linear-gradient(165deg, #4a7fb0, var(--c-adk)); }
+  .btn-laporan-unduh { background: linear-gradient(165deg, var(--red-light), var(--red-ojk)); }
+
+  .table-scroll { overflow-x: auto; }
+  .tabel-agenda { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tabel-agenda thead th {
+    background: linear-gradient(165deg, var(--red-light), var(--red-ojk)); color: #fff;
+    text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;
+    white-space: nowrap;
+  }
+  .tabel-agenda thead th:first-child { border-radius: 10px 0 0 10px; }
+  .tabel-agenda thead th:last-child { border-radius: 0 10px 10px 0; text-align: center; }
+  .tabel-agenda tbody td { padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--navy-dark); vertical-align: top; }
+  .tabel-agenda tbody tr:hover td { background: #faf7f6; }
+  .tabel-agenda tbody tr:last-child td { border-bottom: none; }
+  .tabel-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+  .tabel-progres { font-weight: 700; font-size: 11.5px; white-space: nowrap; }
+  .tabel-aksi { text-align: center; }
+  .btn-detail-tabel {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--red-ojk);
+    border: 1.5px solid var(--red-ojk); border-radius: 20px; padding: 5px 12px; background: #fff; white-space: nowrap;
+  }
+  .btn-detail-tabel:hover { background: var(--red-ojk); color: #fff; }
+
+
   /* ===== MODAL DASAR (dipakai bersama oleh semua modal) ===== */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(28,20,22,0.6); display: none;
@@ -478,8 +520,8 @@
       <input type="text" id="inputPencarian" placeholder="Cari agenda, tempat, peserta, surat..." oninput="onSearchChange()">
     </div>
     <div class="topbar-nav">
-      <button class="nav-pill active" id="navKalender"><i class="fas fa-calendar"></i> Kalender</button>
-      <button class="nav-pill" id="navTabel" onclick="onKlikTabel()"><i class="fas fa-table-cells"></i> Tabel</button>
+      <button class="nav-pill active" id="navKalender" onclick="gantiTampilan('kalender')"><i class="fas fa-calendar"></i> Kalender</button>
+      <button class="nav-pill" id="navTabel" onclick="gantiTampilan('tabel')"><i class="fas fa-table-cells"></i> Tabel</button>
       <button class="nav-pill" id="btnAdmin" onclick="onKlikTombolAdmin()">
         <i class="fas fa-lock"></i><span id="labelBtnAdmin">Admin</span>
       </button>
@@ -528,6 +570,9 @@
     </div>
   </div>
 
+  <!-- ==================== TAMPILAN: KALENDER ==================== -->
+  <div id="viewKalender">
+
   <!-- ==================== NAVIGASI BULAN + LEGENDA + HARI INI ==================== -->
   <div class="month-nav-row">
     <div class="month-nav-box">
@@ -572,6 +617,37 @@
     </div>
     <div id="daftarAgendaHariIni">
       <div class="loading-text">Memuat agenda hari ini...</div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- ==================== TAMPILAN: TABEL ==================== -->
+  <div id="viewTabel" style="display:none;">
+    <div class="table-card">
+      <div class="table-card-head">
+        <div>
+          <div class="table-card-title">Daftar Kegiatan Kantor OJK Purwokerto</div>
+          <div class="table-card-sub">Daftar agenda sesuai filter aktif.</div>
+        </div>
+        <div class="table-card-actions">
+          <button class="btn-laporan btn-laporan-preview" onclick="previewLaporanPdf()"><i class="fas fa-eye"></i> Preview</button>
+          <button class="btn-laporan btn-laporan-unduh" onclick="unduhLaporanPdf()"><i class="fas fa-file-pdf"></i> Unduh PDF</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="tabel-agenda">
+          <thead>
+            <tr>
+              <th>No</th><th>Tanggal</th><th>Jam</th><th>Kategori</th><th>Nama Kegiatan</th>
+              <th>Tempat/Media</th><th>Dihadiri Oleh</th><th>Progres</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelAgendaBody">
+            <tr><td colspan="9" class="loading-text">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -835,6 +911,7 @@
   function renderSemua() {
     renderKalender();
     renderAgendaHariIni();
+    renderTabelAgenda();
   }
 
   /** Update kartu "Status Data": jumlah total agenda + jam terakhir data disinkronkan dari server. */
@@ -846,9 +923,135 @@
     document.getElementById('labelTersinkron').innerText = 'Tersinkron ' + jam + '.' + menit;
   }
 
-  /** Tampilan Tabel belum dibangun -- placeholder jujur, bukan pura-pura berfungsi. */
-  function onKlikTabel() {
-    tampilkanToast('Tampilan Tabel belum tersedia, masih dalam pengembangan.', 'error');
+  /** Pindah antara tampilan Kalender dan tampilan Tabel (bagian atas -- topbar, kartu filter -- tetap sama). */
+  function gantiTampilan(target) {
+    var tabel = target === 'tabel';
+    document.getElementById('viewKalender').style.display = tabel ? 'none' : '';
+    document.getElementById('viewTabel').style.display = tabel ? '' : 'none';
+    document.getElementById('navKalender').classList.toggle('active', !tabel);
+    document.getElementById('navTabel').classList.toggle('active', tabel);
+  }
+
+  /** Warna teks kolom Progres di tabel. */
+  function warnaProgres(progres) {
+    if (progres === 'Selesai') return 'color:' + WARNA_JABATAN.Pegawai;
+    if (progres === 'Berlangsung') return 'color:' + '#b68a3d';
+    return 'color:var(--text-muted)';
+  }
+
+  /** Ambil daftar agenda yang sesuai filter Jabatan + Periode + pencarian aktif, terurut tanggal & jam. */
+  function ambilAgendaSesuaiFilter() {
+    var list = semuaAgenda.filter(function (item) { return cocokFilterDasar(item) && cocokPeriode(item.tanggal); });
+    list.sort(function (a, b) {
+      if (a.tanggal !== b.tanggal) return a.tanggal.localeCompare(b.tanggal);
+      return ambilJamMenit(a.jamMulai).localeCompare(ambilJamMenit(b.jamMulai));
+    });
+    return list;
+  }
+
+  /** Render tabel "Daftar Kegiatan" di tampilan Tabel. */
+  function renderTabelAgenda() {
+    var body = document.getElementById('tabelAgendaBody');
+    if (!body) return;
+    var list = ambilAgendaSesuaiFilter();
+
+    if (list.length === 0) {
+      body.innerHTML = '<tr><td colspan="9" class="loading-text">Tidak ada agenda sesuai filter saat ini.</td></tr>';
+      return;
+    }
+
+    var html = '';
+    list.forEach(function (item, idx) {
+      var tglObj = new Date(item.tanggal + 'T00:00:00');
+      var tglFmt = String(tglObj.getDate()).padStart(2, '0') + '/' + String(tglObj.getMonth() + 1).padStart(2, '0') + '/' + tglObj.getFullYear();
+      var jamMulaiFmt = formatJam(item.jamMulai);
+      var jamSelesaiFmt = formatJam(item.jamSelesai);
+      var jamGabung = jamMulaiFmt + (jamSelesaiFmt !== '-' && jamSelesaiFmt !== jamMulaiFmt ? (' - ' + jamSelesaiFmt) : '');
+      var badge = badgeJabatan(item.jabatan);
+      var progres = hitungProgresKegiatan(item.tanggal);
+
+      html += '<tr>';
+      html += '<td>' + (idx + 1) + '</td>';
+      html += '<td>' + tglFmt + '</td>';
+      html += '<td>' + jamGabung + '</td>';
+      html += '<td><span class="tabel-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escapeHtml(item.jabatan) + '</span></td>';
+      html += '<td>' + escapeHtml(item.judul) + '</td>';
+      html += '<td>' + escapeHtml(item.tempat || '-') + '</td>';
+      html += '<td>' + escapeHtml(item.dihadiri || '-') + '</td>';
+      html += '<td class="tabel-progres" style="' + warnaProgres(progres) + '">' + progres + '</td>';
+      html += '<td class="tabel-aksi"><button class="btn-detail-tabel" onclick=\'bukaDetailSatuAgenda(' + JSON.stringify(item.id) + ')\'><i class="fas fa-arrow-up-right-from-square"></i> Detail</button></td>';
+      html += '</tr>';
+    });
+    body.innerHTML = html;
+  }
+
+  /** Buka modal detail untuk 1 agenda spesifik dari tabel -- tampilannya sama seperti modal detail di kalender,
+   *  bedanya daftar di panel kiri cuma berisi 1 agenda ini saja (bukan semua agenda di tanggal itu). */
+  function bukaDetailSatuAgenda(id) {
+    var item = semuaAgenda.filter(function (a) { return a.id === id; })[0];
+    if (!item) return;
+    window._modalTglAktif = item.tanggal;
+    window._modalListAktif = [item];
+    renderModalDetailTanggal(item.id);
+    bukaModal('modalDetailTanggal');
+  }
+
+  /** Susun HTML laporan (dipakai untuk Preview maupun Unduh PDF -- keduanya lewat cetak/print bawaan browser). */
+  function bangunHtmlLaporan() {
+    var list = ambilAgendaSesuaiFilter();
+    var baris = list.map(function (item, idx) {
+      var tglObj = new Date(item.tanggal + 'T00:00:00');
+      var tglFmt = String(tglObj.getDate()).padStart(2, '0') + '/' + String(tglObj.getMonth() + 1).padStart(2, '0') + '/' + tglObj.getFullYear();
+      var jamMulaiFmt = formatJam(item.jamMulai);
+      var jamSelesaiFmt = formatJam(item.jamSelesai);
+      var jamGabung = jamMulaiFmt + (jamSelesaiFmt !== '-' && jamSelesaiFmt !== jamMulaiFmt ? (' - ' + jamSelesaiFmt) : '');
+      return '<tr>' +
+        '<td>' + (idx + 1) + '</td>' +
+        '<td>' + tglFmt + '</td>' +
+        '<td>' + jamGabung + '</td>' +
+        '<td>' + escapeHtml(item.jabatan) + '</td>' +
+        '<td>' + escapeHtml(item.judul) + '</td>' +
+        '<td>' + escapeHtml(item.tempat || '-') + '</td>' +
+        '<td>' + escapeHtml(item.dihadiri || '-') + '</td>' +
+        '<td>' + hitungProgresKegiatan(item.tanggal) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    return '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">' +
+      '<title>Daftar Kegiatan - OJK Purwokerto</title>' +
+      '<style>' +
+      'body{font-family:Arial,Helvetica,sans-serif;padding:26px;color:#222;}' +
+      'h1{font-size:18px;margin:0 0 2px;}' +
+      'p.sub{font-size:12px;color:#666;margin:0 0 18px;}' +
+      'table{width:100%;border-collapse:collapse;font-size:11px;}' +
+      'th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;}' +
+      'th{background:#7c1230;color:#fff;}' +
+      'tbody tr:nth-child(even){background:#f7f4f1;}' +
+      '@media print{@page{size:A4 landscape;margin:14mm;}}' +
+      '</style></head><body>' +
+      '<h1>Daftar Kegiatan Kantor OJK Purwokerto</h1>' +
+      '<p class="sub">Dicetak ' + new Date().toLocaleString('id-ID') + ' &middot; ' + list.length + ' kegiatan sesuai filter aktif</p>' +
+      '<table><thead><tr><th>No</th><th>Tanggal</th><th>Jam</th><th>Kategori</th><th>Nama Kegiatan</th><th>Tempat/Media</th><th>Dihadiri Oleh</th><th>Progres</th></tr></thead>' +
+      '<tbody>' + baris + '</tbody></table>' +
+      '</body></html>';
+  }
+
+  function previewLaporanPdf() {
+    var w = window.open('', '_blank');
+    if (!w) { tampilkanToast('Popup diblokir browser, izinkan popup untuk melihat preview.', 'error'); return; }
+    w.document.open();
+    w.document.write(bangunHtmlLaporan());
+    w.document.close();
+  }
+
+  function unduhLaporanPdf() {
+    var w = window.open('', '_blank');
+    if (!w) { tampilkanToast('Popup diblokir browser, izinkan popup untuk mengunduh PDF.', 'error'); return; }
+    var html = bangunHtmlLaporan().replace('</body>',
+      '<script>window.onload = function(){ window.print(); };<' + '/script></body>');
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
   }
 
   // ===================== FILTER =====================
