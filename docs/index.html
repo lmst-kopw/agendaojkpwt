@@ -718,9 +718,16 @@
   }
 
   /** Format jam gaya Indonesia untuk ditampilkan: "10:00" -> "10.00" */
+  /**
+   * Format jam gaya Indonesia untuk ditampilkan: "10:00" -> "10.00".
+   * Kalau isinya bukan jam (misal diisi "TBC" di spreadsheet), tetap
+   * ditampilkan apa adanya -- cuma benar-benar kosong yang jadi "-".
+   */
   function formatJam(j) {
+    if (!j || j === '-') return '-';
     var hm = ambilJamMenit(j);
-    return hm ? hm.replace(':', '.') : '-';
+    if (hm) return hm.replace(':', '.');
+    return String(j).trim() || '-';
   }
 
   /** Progres kegiatan dihitung otomatis dari tanggal (tanpa perlu field tambahan di data). */
@@ -947,7 +954,9 @@
 
     agendaSedangDilihat = itemAktif;
 
-    var jamText = formatJam(itemAktif.jamMulai) + (itemAktif.jamSelesai && itemAktif.jamSelesai !== '-' ? (' - ' + formatJam(itemAktif.jamSelesai)) : '');
+    var jamMulaiFmt = formatJam(itemAktif.jamMulai);
+    var jamSelesaiFmt = formatJam(itemAktif.jamSelesai);
+    var jamText = jamMulaiFmt + (jamSelesaiFmt !== '-' && jamSelesaiFmt !== jamMulaiFmt ? (' - ' + jamSelesaiFmt) : '');
     var linkValue = itemAktif.link ? '<a href="' + itemAktif.link + '" target="_blank" rel="noopener">' + escapeHtml(itemAktif.link) + '</a>' : '-';
 
     var htmlFields = '<div class="detailtgl-grid">';
@@ -1014,7 +1023,9 @@
       html += '<div class="agenda-card" style="border-left-color:' + warna + '" onclick=\'bukaDetailTanggal(' + JSON.stringify(item.tanggal) + ',' + JSON.stringify(item.id) + ')\'>';
       html += '<div class="agenda-card-top">';
       html += '<span class="agenda-card-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escapeHtml(item.jabatan) + '</span>';
-      html += '<span class="agenda-card-time"><i class="fas fa-clock"></i> ' + formatJam(item.jamMulai) + ' WIB</span>';
+      var labelWaktu = formatJam(item.jamMulai);
+      if (ambilJamMenit(item.jamMulai)) labelWaktu += ' WIB';
+      html += '<span class="agenda-card-time"><i class="fas fa-clock"></i> ' + labelWaktu + '</span>';
       html += '</div>';
       html += '<div class="agenda-card-title">' + escapeHtml(item.judul) + '</div>';
       html += '<div class="agenda-card-grid">';
