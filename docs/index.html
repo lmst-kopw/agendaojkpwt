@@ -368,6 +368,30 @@
 
   .loading-text { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
 
+  /* ===== SPLASH PEMUATAN PERTAMA ===== */
+  .app-splash {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-main);
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+  }
+  .app-splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+  .app-splash-card {
+    display: flex; align-items: center; gap: 18px;
+    background: linear-gradient(180deg, #ffffff, #fbf9f7); border: 1px solid var(--border-color);
+    border-radius: 22px; padding: 22px 30px; box-shadow: var(--e3), var(--inset-hi);
+  }
+  .app-splash-icon {
+    width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+    background: linear-gradient(155deg, var(--red-light) 0%, var(--red-ojk) 45%, var(--red-dark) 100%);
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px;
+    box-shadow: 0 8px 18px -4px rgba(124,18,48,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+    animation: splashPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes splashPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+  .app-splash-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 16px; color: var(--navy-dark); }
+  .app-splash-sub { font-size: 12.5px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
 
   @media (max-width: 640px) {
     .topbar-stick-wrap { position: static; padding-top: 0; }
@@ -415,6 +439,16 @@
 </head>
 <body>
 
+<div class="app-splash" id="appSplash">
+  <div class="app-splash-card">
+    <div class="app-splash-icon"><i class="fas fa-calendar-days"></i></div>
+    <div>
+      <div class="app-splash-title">Memuat agenda</div>
+      <div class="app-splash-sub">Mohon tunggu</div>
+    </div>
+  </div>
+</div>
+
 <div id="toastContainer" class="toast-container"></div>
 
 <div class="wrap">
@@ -441,7 +475,7 @@
       </button>
     </div>
     <div class="topbar-actions">
-      <button class="icon-btn btn-refresh" title="Refresh data" onclick="muatUlangData()"><i class="fas fa-rotate"></i> Refresh</button>
+      <button class="icon-btn btn-refresh" title="Refresh data" onclick="muatUlangData()"><i class="fas fa-rotate" id="iconRefresh"></i> Refresh</button>
     </div>
   </div>
   </div>
@@ -679,6 +713,7 @@
   var isAdmin = false;
   var passwordAdminTersimpan = ''; // disimpan di memori tab ini, dikirim ulang tiap simpan/hapus (karena tidak ada sesi server)
   var agendaSedangDilihat = null; // untuk keperluan edit/hapus dari modal detail
+  var pemuatanPertama = true; // true selama splash awal masih tampil
 
   var WARNA_JABATAN = {
     'ADK': '#34618f',
@@ -747,14 +782,20 @@
     if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('GANTI_DENGAN_URL') !== -1) {
       document.getElementById('calendarGrid').innerHTML =
         '<div class="loading-text">APPS_SCRIPT_URL belum diisi. Buka Index.html, ganti nilai APPS_SCRIPT_URL dengan URL Web App Apps Script kamu.</div>';
+      pemuatanPertama = false;
+      var splashAwal = document.getElementById('appSplash');
+      if (splashAwal) splashAwal.classList.add('hide');
       return;
     }
     muatUlangData();
   });
 
   function muatUlangData() {
-    document.getElementById('calendarGrid').innerHTML = '<div class="loading-text">Memuat kalender...</div>';
-    document.getElementById('daftarAgendaHariIni').innerHTML = '<div class="loading-text">Memuat agenda hari ini...</div>';
+    var iniPemuatanPertama = pemuatanPertama;
+    if (!iniPemuatanPertama) {
+      var icon = document.getElementById('iconRefresh');
+      if (icon) icon.classList.add('fa-spin');
+    }
 
     apiGet('list')
       .then(function (res) {
@@ -762,11 +803,22 @@
         semuaAgenda = res.data || [];
         renderSemua();
         perbaruiKartuStatusData();
-        tampilkanToast('Data agenda berhasil dimuat.', 'success');
       })
       .catch(function (err) {
-        document.getElementById('calendarGrid').innerHTML = '<div class="loading-text">Gagal memuat data: ' + err.message + '</div>';
+        if (iniPemuatanPertama) {
+          document.getElementById('calendarGrid').innerHTML = '<div class="loading-text">Gagal memuat data: ' + err.message + '</div>';
+        }
         tampilkanToast('Gagal memuat data: ' + err.message, 'error');
+      })
+      .then(function () {
+        if (iniPemuatanPertama) {
+          pemuatanPertama = false;
+          var splash = document.getElementById('appSplash');
+          if (splash) splash.classList.add('hide');
+        } else {
+          var icon2 = document.getElementById('iconRefresh');
+          if (icon2) icon2.classList.remove('fa-spin');
+        }
       });
   }
 
