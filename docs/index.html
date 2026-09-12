@@ -18,7 +18,7 @@
     --gold-light: #d9b467;
     --navy-dark: #211d20;
     --text-muted: #7a6d74;
-    --border-color: #e8e0dd;
+    --border-color: #f1ebe7;
     --bg-main: #eee8e2;
     --white: #ffffff;
     --success: #3f8f63;
@@ -32,18 +32,14 @@
     /* Sistem elevasi 3D: tiap level menumpuk bayangan kontak (tajam,
        dekat) + bayangan ambient (lembut, jauh) supaya kedalamannya
        terasa alami, bukan cuma satu blur generik. */
-    --e1: 0 1px 2px rgba(40,20,25,0.06), 0 3px 8px rgba(40,20,25,0.06);
-    --e2: 0 1px 2px rgba(40,20,25,0.05), 0 10px 22px -6px rgba(40,20,25,0.14), 0 22px 40px -18px rgba(40,20,25,0.16);
-    --e3: 0 2px 4px rgba(40,20,25,0.06), 0 16px 32px -10px rgba(40,20,25,0.20), 0 36px 60px -24px rgba(40,20,25,0.24);
+    --e1: 0 1px 2px rgba(40,20,25,0.05), 0 3px 8px rgba(40,20,25,0.05);
+    --e2: 0 1px 2px rgba(40,20,25,0.04), 0 10px 22px -6px rgba(40,20,25,0.12), 0 22px 40px -18px rgba(40,20,25,0.14);
+    --e3: 0 2px 4px rgba(40,20,25,0.05), 0 16px 32px -10px rgba(40,20,25,0.17), 0 36px 60px -24px rgba(40,20,25,0.20);
     --inset-hi: inset 0 1px 0 rgba(255,255,255,0.9);
   }
   html { background: var(--bg-main); }
   body {
-    background:
-      radial-gradient(1200px 480px at 12% -10%, #fbf7f2 0%, transparent 60%),
-      radial-gradient(1000px 460px at 100% 0%, #f3ece6 0%, transparent 55%),
-      var(--bg-main);
-    background-attachment: fixed;
+    background: var(--bg-main);
     color: var(--navy-dark); min-height: 100vh; padding-bottom: 40px;
   }
   h1, h2, h3 { font-family: 'Sora', sans-serif; }
@@ -215,27 +211,35 @@
   .today-card-header i { color: var(--red-ojk); font-size: 18px; }
   .today-card-title { font-weight: 800; font-size: 15px; color: var(--red-ojk); }
   .today-card-date { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .today-card-count { font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin-top: 1px; }
 
-  .agenda-item-mini {
-    display: flex; gap: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 13px; margin-bottom: 10px;
-    cursor: pointer; transition: background 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    background: linear-gradient(180deg, #ffffff, #fcfaf9); box-shadow: var(--e1);
+  #daftarAgendaHariIni { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+
+  .agenda-card {
+    border: 1.5px solid var(--border-color); border-left-width: 4px; border-radius: 15px; padding: 16px;
+    cursor: pointer; transition: box-shadow 0.2s ease, transform 0.2s ease;
+    background: linear-gradient(180deg, #ffffff, #fdfcfb); box-shadow: var(--e1);
   }
-  .agenda-item-mini:hover { background: #fdf9f8; box-shadow: var(--e2); transform: translateY(-1px); }
-  .agenda-item-mini:last-child { margin-bottom: 0; }
-  .agenda-item-mini .color-bar { width: 4px; border-radius: 3px; flex-shrink: 0; }
-  .agenda-item-mini-body { flex: 1; min-width: 0; }
-  .agenda-item-mini-title { font-weight: 700; font-size: 13.5px; color: var(--navy-dark); }
-  .agenda-item-mini-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
-  .agenda-item-mini-jam {
-    font-size: 11px; font-weight: 700; color: var(--red-ojk); background: #fbeef1;
-    padding: 3px 9px; border-radius: 20px; align-self: flex-start; white-space: nowrap;
+  .agenda-card:hover { box-shadow: var(--e2); transform: translateY(-2px); }
+  .agenda-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .agenda-card-badge { padding: 3px 11px; border-radius: 20px; font-size: 10.5px; font-weight: 700; }
+  .agenda-card-time { font-size: 11.5px; font-weight: 700; color: var(--red-ojk); display: flex; align-items: center; gap: 5px; }
+  .agenda-card-title { font-weight: 700; font-size: 14px; color: var(--navy-dark); line-height: 1.4; margin-bottom: 14px; }
+  .agenda-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .agenda-card-field { border: 1px solid var(--border-color); border-radius: 11px; padding: 8px 11px; background: #faf8f6; }
+  .agenda-card-field-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+  .agenda-card-field-value { font-size: 12.5px; font-weight: 600; color: var(--navy-dark); }
+  .agenda-card-foot { display: flex; justify-content: flex-end; }
+  .agenda-card-detail-btn {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--red-ojk);
+    border: 1.5px solid var(--red-ojk); border-radius: 20px; padding: 6px 14px; background: #fff;
   }
+  .agenda-card:hover .agenda-card-detail-btn { background: var(--red-ojk); color: #fff; }
 
   .empty-state { text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 13px; }
   .empty-state i { font-size: 26px; margin-bottom: 8px; display: block; color: #d8cdd0; }
 
-  /* ===== MODAL DETAIL AGENDA ===== */
+  /* ===== MODAL DASAR (dipakai bersama oleh semua modal) ===== */
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(28,20,22,0.6); display: none;
     align-items: center; justify-content: center; z-index: 9000; padding: 16px;
@@ -256,15 +260,6 @@
   .modal-close { background: none; border: none; font-size: 18px; color: var(--text-muted); flex-shrink: 0; }
   .modal-close:hover { color: var(--red-ojk); }
   .modal-body { padding: 18px 22px; }
-  .detail-row { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
-  .detail-row:last-child { margin-bottom: 0; }
-  .detail-row i { width: 18px; text-align: center; color: var(--red-ojk); font-size: 14px; margin-top: 2px; flex-shrink: 0; }
-  .detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 2px; }
-  .detail-value { font-size: 13.5px; font-weight: 600; color: var(--navy-dark); word-break: break-word; }
-  .detail-value a { color: var(--c-adk); text-decoration: underline; }
-  .jabatan-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; color: #fff; font-size: 10.5px; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-
-  .modal-foot { padding: 14px 22px 20px; display: flex; gap: 10px; border-top: 1px solid var(--border-color); }
   .btn-flat {
     flex: 1; height: 42px; border-radius: 11px; font-weight: 700; font-size: 13px; border: none;
     box-shadow: var(--e1);
@@ -273,19 +268,53 @@
   .btn-flat-edit { background: #eaf1f9; color: var(--c-adk); }
   .btn-flat-hapus { background: #fbeaea; color: #b8362a; }
 
-  /* ===== ITEM DI MODAL DAFTAR RINGKAS (klik tanggal dengan >1 agenda) ===== */
-  .list-agenda-item {
-    display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border-color);
-    border-radius: 13px; margin-bottom: 10px; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-    background: #fff;
+  /* ===== MODAL: DETAIL AGENDA (daftar + detail 2 kolom) ===== */
+  .modal-box-detail { max-width: 900px; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; padding: 0; }
+  .detailtgl-head {
+    background: linear-gradient(155deg, #35323a, var(--navy-dark));
+    padding: 20px 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+    border-radius: 20px 20px 0 0; flex-shrink: 0;
   }
-  .list-agenda-item:last-child { margin-bottom: 0; }
-  .list-agenda-item:hover { background: #faf7f7; border-color: var(--red-ojk); transform: translateY(-1px); }
-  .list-agenda-item .color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-  .list-agenda-item-body { flex: 1; min-width: 0; }
-  .list-agenda-item-title { font-weight: 700; font-size: 13.5px; color: var(--navy-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .list-agenda-item-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
-  .list-agenda-item i.chevron { color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+  .detailtgl-eyebrow { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.55); margin-bottom: 4px; }
+  .detailtgl-date { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 19px; color: #fff; }
+  .detailtgl-close {
+    width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(255,255,255,0.12);
+    color: #fff; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .detailtgl-close:hover { background: rgba(255,255,255,0.22); }
+
+  .detailtgl-body { display: flex; flex: 1; min-height: 0; }
+
+  .detailtgl-list {
+    width: 300px; flex-shrink: 0; overflow-y: auto; padding: 16px; border-right: 1px solid var(--border-color);
+    background: #faf8f6;
+  }
+  .detailtgl-list-item {
+    border: 1.5px solid var(--border-color); border-radius: 13px; padding: 12px 13px; margin-bottom: 10px;
+    cursor: pointer; background: #fff; transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+  .detailtgl-list-item:last-child { margin-bottom: 0; }
+  .detailtgl-list-item:hover { transform: translateY(-1px); }
+  .detailtgl-list-item.aktif { border-color: var(--red-ojk); background: #fdf3f4; box-shadow: 0 4px 12px -4px rgba(124,18,48,0.25); }
+  .detailtgl-list-badge {
+    display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-bottom: 8px;
+  }
+  .detailtgl-list-title { font-weight: 700; font-size: 13px; color: var(--navy-dark); line-height: 1.35; margin-bottom: 6px; }
+  .detailtgl-list-meta { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+  .detailtgl-fields { flex: 1; min-width: 0; overflow-y: auto; padding: 20px 24px; }
+  .detailtgl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .detailtgl-grid .span2 { grid-column: 1 / -1; }
+  .detailtgl-field {
+    border: 1.5px solid var(--border-color); border-radius: 13px; padding: 10px 14px; margin-bottom: 12px;
+    background: #fdfcfb;
+  }
+  .detailtgl-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 3px; }
+  .detailtgl-field-value { font-size: 13.5px; font-weight: 600; color: var(--navy-dark); word-break: break-word; }
+  .detailtgl-field-value a { color: var(--c-adk); text-decoration: underline; }
+
+  .detailtgl-foot { display: flex; gap: 10px; margin-top: 4px; }
+
 
   /* ===== MODAL LOGIN / FORM ADMIN ===== */
   .form-group { margin-bottom: 14px; }
@@ -338,43 +367,6 @@
 
   .loading-text { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
 
-  /* ===== MODE FULLSCREEN: manfaatkan seluruh layar, jangan cuma "lebih besar dikit" ===== */
-  :fullscreen, :-webkit-full-screen, :-moz-full-screen {
-    background: var(--bg-main);
-  }
-  :fullscreen body, :-webkit-full-screen body, :-moz-full-screen body {
-    overflow-y: auto;
-  }
-  :fullscreen .wrap, :-webkit-full-screen .wrap, :-moz-full-screen .wrap {
-    max-width: 100%;
-    padding: 26px 34px;
-  }
-  :fullscreen .calendar-card, :-webkit-full-screen .calendar-card, :-moz-full-screen .calendar-card {
-    padding: 28px;
-  }
-  :fullscreen .day-cell, :-webkit-full-screen .day-cell, :-moz-full-screen .day-cell {
-    min-height: 150px;
-    padding: 10px;
-  }
-  :fullscreen .day-number, :-webkit-full-screen .day-number, :-moz-full-screen .day-number {
-    font-size: 15px;
-  }
-  :fullscreen .day-agenda-chip, :-webkit-full-screen .day-agenda-chip, :-moz-full-screen .day-agenda-chip {
-    font-size: 12px;
-    padding: 4px 9px;
-  }
-  :fullscreen .calendar-head-cell, :-webkit-full-screen .calendar-head-cell, :-moz-full-screen .calendar-head-cell {
-    font-size: 13px;
-  }
-  :fullscreen .month-nav-title, :-webkit-full-screen .month-nav-title, :-moz-full-screen .month-nav-title {
-    font-size: 24px;
-  }
-  :fullscreen .header-title, :-webkit-full-screen .header-title, :-moz-full-screen .header-title {
-    font-size: 20px;
-  }
-  :fullscreen .today-card, :-webkit-full-screen .today-card, :-moz-full-screen .today-card {
-    padding: 26px;
-  }
 
   @media (max-width: 640px) {
     .topbar-stick-wrap { position: static; padding-top: 0; }
@@ -389,6 +381,11 @@
     .day-cell { min-height: 68px; }
     .day-agenda-chip { font-size: 8.5px; }
     .month-nav-title { font-size: 16px; }
+    .modal-box-detail { max-height: 92vh; }
+    .detailtgl-body { flex-direction: column; }
+    .detailtgl-list { width: 100%; max-height: 160px; border-right: none; border-bottom: 1px solid var(--border-color); }
+    .detailtgl-grid { grid-template-columns: 1fr; }
+    .detailtgl-grid .span2 { grid-column: auto; }
   }
 
   /* Layar sangat sempit (HP tegak, atau di dalam kotak embed Google Sites yang sempit):
@@ -444,7 +441,6 @@
     </div>
     <div class="topbar-actions">
       <button class="icon-btn btn-refresh" title="Refresh data" onclick="muatUlangData()"><i class="fas fa-rotate"></i> Refresh</button>
-      <button class="icon-btn" id="btnFullscreen" title="Layar penuh" onclick="toggleFullscreen()"><i class="fas fa-expand" id="iconFullscreen"></i></button>
     </div>
   </div>
   </div>
@@ -526,6 +522,7 @@
       <div>
         <div class="today-card-title">Agenda Hari Ini</div>
         <div class="today-card-date" id="labelTanggalHariIni">-</div>
+        <div class="today-card-count" id="labelJumlahAgendaHariIni">-</div>
       </div>
     </div>
     <div id="daftarAgendaHariIni">
@@ -535,62 +532,23 @@
 
 </div>
 
-<!-- ==================== MODAL: DAFTAR RINGKAS AGENDA 1 TANGGAL (kalau lebih dari 1 agenda) ==================== -->
-<div class="modal-overlay" id="modalDaftarTanggal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-head-title" id="daftarTanggalJudul">Agenda pada tanggal ini</div>
-      <button class="modal-close" onclick="tutupModal('modalDaftarTanggal')"><i class="fas fa-xmark"></i></button>
-    </div>
-    <div class="modal-body" id="daftarTanggalIsi">
-      <!-- diisi lewat JS -->
-    </div>
-  </div>
-</div>
-
-<!-- ==================== MODAL: DETAIL AGENDA ==================== -->
-<div class="modal-overlay" id="modalDetail">
-  <div class="modal-box">
-    <div class="modal-head">
+<!-- ==================== MODAL: DETAIL AGENDA (daftar + detail dalam 1 panel) ==================== -->
+<div class="modal-overlay" id="modalDetailTanggal">
+  <div class="modal-box modal-box-detail">
+    <div class="detailtgl-head">
       <div>
-        <div class="modal-head-title" id="detailJudul">-</div>
-        <span class="jabatan-badge" id="detailJabatanBadge" style="margin-top:6px;">-</span>
+        <div class="detailtgl-eyebrow">Detail Agenda</div>
+        <div class="detailtgl-date" id="detailTglJudul">-</div>
       </div>
-      <button class="modal-close" onclick="tutupModal('modalDetail')"><i class="fas fa-xmark"></i></button>
+      <button class="detailtgl-close" onclick="tutupModal('modalDetailTanggal')"><i class="fas fa-xmark"></i></button>
     </div>
-    <div class="modal-body">
-      <div class="detail-row">
-        <i class="fas fa-file-lines"></i>
-        <div><div class="detail-label">Nomor Surat</div><div class="detail-value" id="detailNomorSurat">-</div></div>
+    <div class="detailtgl-body">
+      <div class="detailtgl-list" id="detailTglList">
+        <!-- diisi lewat JS -->
       </div>
-      <div class="detail-row">
-        <i class="fas fa-calendar"></i>
-        <div><div class="detail-label">Tanggal Kegiatan</div><div class="detail-value" id="detailTanggal">-</div></div>
+      <div class="detailtgl-fields" id="detailTglFields">
+        <!-- diisi lewat JS -->
       </div>
-      <div class="detail-row">
-        <i class="fas fa-clock"></i>
-        <div><div class="detail-label">Jam Kegiatan</div><div class="detail-value" id="detailJam">-</div></div>
-      </div>
-      <div class="detail-row">
-        <i class="fas fa-location-dot"></i>
-        <div><div class="detail-label">Tempat Kegiatan</div><div class="detail-value" id="detailTempat">-</div></div>
-      </div>
-      <div class="detail-row">
-        <i class="fas fa-users"></i>
-        <div><div class="detail-label">Dihadiri Oleh</div><div class="detail-value" id="detailDihadiri">-</div></div>
-      </div>
-      <div class="detail-row" id="baris_link">
-        <i class="fas fa-link"></i>
-        <div><div class="detail-label">Link Kegiatan</div><div class="detail-value" id="detailLink">-</div></div>
-      </div>
-      <div class="detail-row" id="baris_keterangan">
-        <i class="fas fa-note-sticky"></i>
-        <div><div class="detail-label">Keterangan</div><div class="detail-value" id="detailKeterangan">-</div></div>
-      </div>
-    </div>
-    <div class="modal-foot" id="modalFootAdmin" style="display:none;">
-      <button class="btn-flat btn-flat-edit" onclick="editAgendaDariDetail()"><i class="fas fa-pen"></i> Edit</button>
-      <button class="btn-flat btn-flat-hapus" onclick="hapusAgendaDariDetail()"><i class="fas fa-trash"></i> Hapus</button>
     </div>
   </div>
 </div>
@@ -727,6 +685,33 @@
     'Pegawai': '#2f7a5f',
     'Gabungan': '#7c4a9e'
   };
+
+  // Versi lembut (bg muda + teks tua) dari warna kategori, dipakai untuk badge pill.
+  var BADGE_JABATAN = {
+    'ADK': { bg: '#e6eef7', fg: '#2c5480' },
+    'Kepala Kantor': { bg: '#fbe9ee', fg: '#7c1230' },
+    'Pegawai': { bg: '#e7f5ed', fg: '#256b3f' },
+    'Gabungan': { bg: '#f3eaf8', fg: '#6b3c8a' }
+  };
+
+  function badgeJabatan(jabatan) {
+    return BADGE_JABATAN[jabatan] || { bg: '#eee', fg: '#555' };
+  }
+
+  /** Format jam gaya Indonesia: "08:00" -> "08.00" */
+  function formatJam(j) {
+    if (!j || j === '-') return '-';
+    return j.replace(':', '.');
+  }
+
+  /** Progres kegiatan dihitung otomatis dari tanggal (tanpa perlu field tambahan di data). */
+  function hitungProgresKegiatan(tanggalIso) {
+    var target = new Date(tanggalIso + 'T00:00:00');
+    var now = new Date(); now.setHours(0, 0, 0, 0);
+    if (isSameDate(target, now)) return 'Berlangsung';
+    if (target < now) return 'Selesai';
+    return 'Terjadwal';
+  }
 
   var NAMA_BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   var NAMA_HARI = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
@@ -889,12 +874,12 @@
       html += '<div class="day-number">' + d + '</div>';
       html += '<div class="day-agenda-list">';
 
-      var sedangFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-      var maxTampil = sedangFullscreen ? 5 : 3;
+      var maxTampil = 3;
       for (var j = 0; j < Math.min(listHariIni.length, maxTampil); j++) {
         var it = listHariIni[j];
         var warna = WARNA_JABATAN[it.jabatan] || '#888';
-        html += '<div class="day-agenda-chip" style="background:' + warna + '" title="' + escapeHtml(it.judul) + '">' + escapeHtml(it.judul) + '</div>';
+        var labelChip = (it.jamMulai && it.jamMulai !== '-') ? (formatJam(it.jamMulai) + ' &middot; ' + escapeHtml(it.judul)) : escapeHtml(it.judul);
+        html += '<div class="day-agenda-chip" style="background:' + warna + '" title="' + escapeHtml((it.jamMulai && it.jamMulai !== '-' ? formatJam(it.jamMulai) + ' - ' : '') + it.judul) + '">' + labelChip + '</div>';
       }
       if (listHariIni.length > maxTampil) {
         html += '<div class="day-agenda-more">+' + (listHariIni.length - maxTampil) + ' lainnya</div>';
@@ -906,46 +891,79 @@
     window._agendaPerTanggalAktif = agendaPerTanggal;
   }
 
-  /** Kalau 1 tanggal cuma punya 1 agenda -> langsung buka detail.
-   *  Kalau lebih dari 1 -> buka daftar ringkas dulu, baru pilih salah satu untuk lihat detail. */
-  function bukaDetailTanggal(tglIso) {
-    var list = (window._agendaPerTanggalAktif && window._agendaPerTanggalAktif[tglIso]) || [];
+  /** Buka modal Detail Agenda untuk 1 tanggal: kiri daftar semua agenda tanggal itu, kanan detail agenda terpilih. */
+  function bukaDetailTanggal(tglIso, idTerpilih) {
+    var list = semuaAgenda.filter(function (item) { return item.tanggal === tglIso; });
     if (list.length === 0) return;
-    if (list.length === 1) {
-      tampilkanModalDetail(list[0]);
-    } else {
-      tampilkanModalDaftarTanggal(tglIso, list);
-    }
+    list.sort(function (a, b) { return (a.jamMulai || '').localeCompare(b.jamMulai || ''); });
+
+    window._modalTglAktif = tglIso;
+    window._modalListAktif = list;
+
+    var idAktif = idTerpilih && list.some(function (it) { return it.id === idTerpilih; }) ? idTerpilih : list[0].id;
+    renderModalDetailTanggal(idAktif);
+    bukaModal('modalDetailTanggal');
   }
 
-  function tampilkanModalDaftarTanggal(tglIso, list) {
+  function renderModalDetailTanggal(idAktif) {
+    var list = window._modalListAktif || [];
+    var tglIso = window._modalTglAktif;
     var tglObj = new Date(tglIso + 'T00:00:00');
-    document.getElementById('daftarTanggalJudul').innerText =
-      NAMA_HARI[tglObj.getDay()] + ', ' + tglObj.getDate() + ' ' + NAMA_BULAN[tglObj.getMonth()] + ' ' + tglObj.getFullYear() +
-      ' (' + list.length + ' agenda)';
 
-    var urut = list.slice().sort(function (a, b) { return (a.jamMulai || '').localeCompare(b.jamMulai || ''); });
+    document.getElementById('detailTglJudul').innerText = NAMA_HARI[tglObj.getDay()] + ', ' + tglObj.getDate() + ' ' + NAMA_BULAN[tglObj.getMonth()] + ' ' + tglObj.getFullYear();
 
-    var html = '';
-    urut.forEach(function (item) {
-      var warna = WARNA_JABATAN[item.jabatan] || '#888';
-      html += '<div class="list-agenda-item" onclick=\'pilihAgendaDariDaftar(' + JSON.stringify(item).replace(/'/g, "&#39;") + ')\'>';
-      html += '<span class="color-dot" style="background:' + warna + '"></span>';
-      html += '<div class="list-agenda-item-body">';
-      html += '<div class="list-agenda-item-title">' + escapeHtml(item.judul) + '</div>';
-      html += '<div class="list-agenda-item-meta"><i class="fas fa-clock"></i> ' + escapeHtml(item.jamMulai) + ' &middot; ' + escapeHtml(item.jabatan) + '</div>';
-      html += '</div>';
-      html += '<i class="fas fa-chevron-right chevron"></i>';
-      html += '</div>';
+    var htmlList = '';
+    var itemAktif = list[0];
+    list.forEach(function (item) {
+      var isAktif = item.id === idAktif;
+      if (isAktif) itemAktif = item;
+      var badge = badgeJabatan(item.jabatan);
+      htmlList += '<div class="detailtgl-list-item' + (isAktif ? ' aktif' : '') + '" onclick=\'pilihAgendaDariDaftarTanggal(' + JSON.stringify(item.id) + ')\'>';
+      htmlList += '<span class="detailtgl-list-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escapeHtml(item.jabatan) + '</span>';
+      htmlList += '<div class="detailtgl-list-title">' + escapeHtml(item.judul) + '</div>';
+      htmlList += '<div class="detailtgl-list-meta">' + formatJam(item.jamMulai) + ' &middot; ' + escapeHtml(item.tempat || '-') + '</div>';
+      htmlList += '</div>';
     });
+    document.getElementById('detailTglList').innerHTML = htmlList;
 
-    document.getElementById('daftarTanggalIsi').innerHTML = html;
-    bukaModal('modalDaftarTanggal');
+    agendaSedangDilihat = itemAktif;
+
+    var jamText = formatJam(itemAktif.jamMulai) + (itemAktif.jamSelesai && itemAktif.jamSelesai !== '-' ? (' - ' + formatJam(itemAktif.jamSelesai)) : '');
+    var linkValue = itemAktif.link ? '<a href="' + itemAktif.link + '" target="_blank" rel="noopener">' + escapeHtml(itemAktif.link) + '</a>' : '-';
+
+    var htmlFields = '<div class="detailtgl-grid">';
+    htmlFields += campoDetail('Progres Kegiatan', hitungProgresKegiatan(itemAktif.tanggal));
+    htmlFields += campoDetail('Nomor Surat', itemAktif.nomorSurat || '-');
+    htmlFields += campoDetail('Tanggal Kegiatan', tglObj.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+    htmlFields += campoDetail('Jam Kegiatan', jamText);
+    htmlFields += campoDetail('Nama Kegiatan', escapeHtml(itemAktif.judul), true);
+    htmlFields += campoDetail('Tempat Kegiatan', escapeHtml(itemAktif.tempat || '-'));
+    htmlFields += campoDetail('Kategori Agenda', escapeHtml(itemAktif.jabatan));
+    htmlFields += campoDetail('Link Kegiatan Daring', linkValue, false, true);
+    htmlFields += campoDetail('Dihadiri Oleh', escapeHtml(itemAktif.dihadiri || '-'));
+    if (itemAktif.keterangan) htmlFields += campoDetail('Keterangan', escapeHtml(itemAktif.keterangan), true);
+    htmlFields += '</div>';
+
+    if (isAdmin) {
+      htmlFields += '<div class="detailtgl-foot">' +
+        '<button class="btn-flat btn-flat-edit" onclick="editAgendaDariDetail()"><i class="fas fa-pen"></i> Edit</button>' +
+        '<button class="btn-flat btn-flat-hapus" onclick="hapusAgendaDariDetail()"><i class="fas fa-trash"></i> Hapus</button>' +
+        '</div>';
+    }
+
+    document.getElementById('detailTglFields').innerHTML = htmlFields;
   }
 
-  function pilihAgendaDariDaftar(item) {
-    tutupModal('modalDaftarTanggal');
-    tampilkanModalDetail(item);
+  /** Bikin 1 kotak field (label + value) untuk panel detail. span2 = melebar 1 baris penuh. */
+  function campoDetail(label, value, span2, sudahHtml) {
+    return '<div class="detailtgl-field' + (span2 ? ' span2' : '') + '">' +
+      '<div class="detailtgl-field-label">' + label + '</div>' +
+      '<div class="detailtgl-field-value">' + (sudahHtml ? value : value) + '</div>' +
+      '</div>';
+  }
+
+  function pilihAgendaDariDaftarTanggal(id) {
+    renderModalDetailTanggal(id);
   }
 
   // ===================== RENDER PANEL HARI INI =====================
@@ -958,6 +976,9 @@
       return item.tanggal === tglIsoHariIni && cocokFilterDasar(item);
     });
 
+    var labelJumlah = document.getElementById('labelJumlahAgendaHariIni');
+    if (labelJumlah) labelJumlah.innerText = listHariIni.length + ' acara pada tanggal ini';
+
     var cont = document.getElementById('daftarAgendaHariIni');
     if (listHariIni.length === 0) {
       cont.innerHTML = '<div class="empty-state"><i class="fas fa-mug-hot"></i>Tidak ada agenda untuk hari ini.</div>';
@@ -969,60 +990,29 @@
     var html = '';
     listHariIni.forEach(function (item) {
       var warna = WARNA_JABATAN[item.jabatan] || '#888';
-      html += '<div class="agenda-item-mini" onclick=\'tampilkanModalDetail(' + JSON.stringify(item).replace(/'/g, "&#39;") + ')\'>';
-      html += '<div class="color-bar" style="background:' + warna + '"></div>';
-      html += '<div class="agenda-item-mini-body">';
-      html += '<div class="agenda-item-mini-title">' + escapeHtml(item.judul) + '</div>';
-      html += '<div class="agenda-item-mini-meta"><i class="fas fa-location-dot"></i> ' + escapeHtml(item.tempat) + '</div>';
+      var badge = badgeJabatan(item.jabatan);
+      var mode = item.link ? 'Daring' : 'Fisik';
+      html += '<div class="agenda-card" style="border-left-color:' + warna + '" onclick=\'bukaDetailTanggal(' + JSON.stringify(item.tanggal) + ',' + JSON.stringify(item.id) + ')\'>';
+      html += '<div class="agenda-card-top">';
+      html += '<span class="agenda-card-badge" style="background:' + badge.bg + ';color:' + badge.fg + '">' + escapeHtml(item.jabatan) + '</span>';
+      html += '<span class="agenda-card-time"><i class="fas fa-clock"></i> ' + formatJam(item.jamMulai) + ' WIB</span>';
       html += '</div>';
-      html += '<div class="agenda-item-mini-jam">' + escapeHtml(item.jamMulai) + '</div>';
+      html += '<div class="agenda-card-title">' + escapeHtml(item.judul) + '</div>';
+      html += '<div class="agenda-card-grid">';
+      html += '<div class="agenda-card-field"><div class="agenda-card-field-label"><i class="fas fa-location-dot"></i> Tempat</div><div class="agenda-card-field-value">' + escapeHtml(item.tempat || '-') + '</div></div>';
+      html += '<div class="agenda-card-field"><div class="agenda-card-field-label"><i class="fas fa-users"></i> Dihadiri</div><div class="agenda-card-field-value">' + escapeHtml(item.dihadiri || '-') + '</div></div>';
+      html += '<div class="agenda-card-field"><div class="agenda-card-field-label"><i class="fas fa-envelope"></i> Nomor Surat</div><div class="agenda-card-field-value">' + escapeHtml(item.nomorSurat || '-') + '</div></div>';
+      html += '<div class="agenda-card-field"><div class="agenda-card-field-label"><i class="fas fa-wifi"></i> Mode</div><div class="agenda-card-field-value">' + mode + '</div></div>';
+      html += '</div>';
+      html += '<div class="agenda-card-foot"><span class="agenda-card-detail-btn"><i class="fas fa-arrow-up-right-from-square"></i> Detail</span></div>';
       html += '</div>';
     });
     cont.innerHTML = html;
   }
 
-  // ===================== MODAL DETAIL AGENDA =====================
-  function tampilkanModalDetail(item) {
-    agendaSedangDilihat = item;
-    document.getElementById('detailJudul').innerText = item.judul;
-    var warna = WARNA_JABATAN[item.jabatan] || '#888';
-    var badge = document.getElementById('detailJabatanBadge');
-    badge.innerText = item.jabatan;
-    badge.style.background = warna;
-
-    document.getElementById('detailNomorSurat').innerText = item.nomorSurat || '-';
-
-    var tglObj = new Date(item.tanggal + 'T00:00:00');
-    document.getElementById('detailTanggal').innerText = NAMA_HARI[tglObj.getDay()] + ', ' + tglObj.getDate() + ' ' + NAMA_BULAN[tglObj.getMonth()] + ' ' + tglObj.getFullYear();
-
-    var jamText = (item.jamMulai || '-') + (item.jamSelesai && item.jamSelesai !== '-' ? (' - ' + item.jamSelesai) : '');
-    document.getElementById('detailJam').innerText = jamText;
-    document.getElementById('detailTempat').innerText = item.tempat || '-';
-    document.getElementById('detailDihadiri').innerText = item.dihadiri || '-';
-
-    var baris_link = document.getElementById('baris_link');
-    if (item.link) {
-      baris_link.style.display = 'flex';
-      document.getElementById('detailLink').innerHTML = '<a href="' + item.link + '" target="_blank" rel="noopener">' + item.link + '</a>';
-    } else {
-      baris_link.style.display = 'none';
-    }
-
-    var baris_ket = document.getElementById('baris_keterangan');
-    if (item.keterangan) {
-      baris_ket.style.display = 'flex';
-      document.getElementById('detailKeterangan').innerText = item.keterangan;
-    } else {
-      baris_ket.style.display = 'none';
-    }
-
-    document.getElementById('modalFootAdmin').style.display = isAdmin ? 'flex' : 'none';
-    bukaModal('modalDetail');
-  }
-
   function editAgendaDariDetail() {
     if (!agendaSedangDilihat) return;
-    tutupModal('modalDetail');
+    tutupModal('modalDetailTanggal');
     bukaFormAgenda(agendaSedangDilihat);
   }
 
@@ -1034,7 +1024,7 @@
       .then(function (res) {
         if (res.sukses) {
           tampilkanToast(res.pesan, 'success');
-          tutupModal('modalDetail');
+          tutupModal('modalDetailTanggal');
           muatUlangData();
         } else {
           tampilkanToast(res.pesan, 'error');
@@ -1148,42 +1138,6 @@
         tampilkanToast('Gagal menyimpan: ' + err.message, 'error');
       });
   }
-
-  // ===================== FULLSCREEN =====================
-  function toggleFullscreen() {
-    var el = document.documentElement;
-    var sedangFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-
-    if (!sedangFullscreen) {
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen(); // Safari
-      else if (el.msRequestFullscreen) el.msRequestFullscreen(); // IE/Edge lama
-      else tampilkanToast('Browser ini tidak mendukung mode layar penuh.', 'error');
-    } else {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      else if (document.msExitFullscreen) document.msExitFullscreen();
-    }
-  }
-
-  function perbaruiIkonFullscreen() {
-    var aktif = document.fullscreenElement || document.webkitFullscreenElement;
-    var icon = document.getElementById('iconFullscreen');
-    var btn = document.getElementById('btnFullscreen');
-    if (aktif) {
-      icon.classList.remove('fa-expand');
-      icon.classList.add('fa-compress');
-      btn.title = 'Keluar layar penuh';
-    } else {
-      icon.classList.remove('fa-compress');
-      icon.classList.add('fa-expand');
-      btn.title = 'Layar penuh';
-    }
-    if (semuaAgenda && semuaAgenda.length >= 0) renderKalender();
-  }
-
-  document.addEventListener('fullscreenchange', perbaruiIkonFullscreen);
-  document.addEventListener('webkitfullscreenchange', perbaruiIkonFullscreen);
 
   // ===================== UTILITAS MODAL / TOAST =====================
   function bukaModal(id) { document.getElementById(id).classList.add('show'); }
