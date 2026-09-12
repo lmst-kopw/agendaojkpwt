@@ -294,8 +294,14 @@
   .tabel-agenda th.kolom-jam, .tabel-agenda td.kolom-jam { white-space: nowrap; min-width: 110px; }
 
   /* ===== MODAL: PREVIEW / CETAK LAPORAN ===== */
-  .modal-box-laporan { max-width: 980px; max-height: 90vh; display: flex; flex-direction: column; }
-  .modal-box-laporan .modal-body { flex: 1; overflow-y: auto; }
+  .modal-box-laporan { max-width: min(96vw, 1500px); width: 96vw; max-height: 92vh; display: flex; flex-direction: column; }
+  .modal-box-laporan .modal-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
+  .btn-cetak-laporan {
+    display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 15px; border-radius: 20px;
+    border: none; background: linear-gradient(165deg, var(--red-light), var(--red-ojk)); color: #fff;
+    font-weight: 700; font-size: 12.5px; box-shadow: var(--e1); flex-shrink: 0; white-space: nowrap;
+  }
+  .btn-cetak-laporan:hover { transform: translateY(-1px); box-shadow: var(--e2); }
   .laporan-cetak { padding: 26px 28px; background: #fff; }
   .laporan-judul { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 18px; color: #222; margin-bottom: 3px; }
   .laporan-periode { font-size: 13px; color: #555; font-weight: 600; margin-bottom: 18px; }
@@ -713,13 +719,13 @@
   <div class="modal-box modal-box-laporan">
     <div class="modal-head modal-laporan-noprint">
       <div class="modal-head-title">Preview Laporan</div>
-      <button class="modal-close" onclick="tutupModal('modalLaporan')"><i class="fas fa-xmark"></i></button>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="btn-cetak-laporan" onclick="window.print()"><i class="fas fa-print"></i> Cetak / Unduh PDF</button>
+        <button class="modal-close" onclick="tutupModal('modalLaporan')"><i class="fas fa-xmark"></i></button>
+      </div>
     </div>
     <div class="modal-body" style="padding: 0;">
       <div id="modalLaporanCetak" class="laporan-cetak"></div>
-    </div>
-    <div class="modal-foot modal-laporan-noprint">
-      <button class="btn-flat btn-flat-edit" onclick="window.print()"><i class="fas fa-print"></i> Cetak / Unduh PDF</button>
     </div>
   </div>
 </div>
