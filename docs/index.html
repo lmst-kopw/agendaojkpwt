@@ -455,7 +455,7 @@
   .login-hero {
     position: relative;
     background:
-      linear-gradient(175deg, rgba(87,9,31,0.80), rgba(33,29,32,0.88)),
+      linear-gradient(175deg, rgba(87,9,31,0.42), rgba(33,29,32,0.5)),
       var(--login-bg-image) center/cover no-repeat;
     padding: 34px 26px 26px;
   }
@@ -467,8 +467,8 @@
     display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px;
     box-shadow: 0 10px 22px -6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   }
-  .login-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 17px; color: #fff; margin-bottom: 5px; }
-  .login-sub { font-size: 12px; color: rgba(255,255,255,0.8); font-weight: 600; padding: 0 8px; line-height: 1.4; }
+  .login-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 17px; color: #fff; margin-bottom: 5px; text-shadow: 0 1px 6px rgba(0,0,0,0.45); }
+  .login-sub { font-size: 12px; color: rgba(255,255,255,0.92); font-weight: 600; padding: 0 8px; line-height: 1.4; text-shadow: 0 1px 5px rgba(0,0,0,0.4); }
   .login-form-area { background: #fff; padding: 24px 26px 26px; text-align: left; }
   .login-error {
     background: #fbeaea; color: #b8362a; font-size: 12.5px; font-weight: 600; padding: 9px 12px;
@@ -1271,18 +1271,6 @@
   }
 
   /** Ambil nama-nama unik dari kolom "Dihadiri" seluruh agenda yang diberikan (dipisah tiap koma). */
-  function kumpulkanNamaUnikDariDihadiri(list) {
-    var hasil = [];
-    list.forEach(function (item) {
-      if (!item.dihadiri) return;
-      item.dihadiri.split(',').forEach(function (bagian) {
-        var nama = bagian.trim();
-        if (nama && hasil.indexOf(nama) === -1) hasil.push(nama);
-      });
-    });
-    return hasil;
-  }
-
   /** Gabung array jadi kalimat gaya Indonesia: "A, B dan C". */
   function gabungDenganDan(list) {
     if (list.length === 0) return '';
@@ -1308,8 +1296,9 @@
 
     var labelTanggal = NAMA_HARI[besok.getDay()] + ', ' + besok.getDate() + ' ' + NAMA_BULAN[besok.getMonth()] + ' ' + besok.getFullYear();
 
-    var namaUnik = kumpulkanNamaUnikDariDihadiri(listBesok);
-    var daftarSapaan = namaUnik.concat(['Bapak/Ibu Pejabat serta rekan-rekan pegawai']);
+    // Nama sapaan tetap (bukan diambil otomatis dari kolom "Dihadiri" agenda)
+    var namaSapaanTetap = ['Bu Dina', 'Bu Winti', 'Bu Yenni'];
+    var daftarSapaan = namaSapaanTetap.concat(['Bapak/Ibu Pejabat serta rekan-rekan pegawai']);
 
     var teks = 'Selamat malam ' + gabungDenganDan(daftarSapaan) + '\n';
     teks += 'Mohon izin kami sampaikan agenda ' + labelTanggal + ' sbb:\n\n';
