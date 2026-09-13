@@ -904,6 +904,9 @@
   // Link webapps ini sendiri, dipakai di penutup teks broadcast agenda ke WA -- ganti kalau alamatnya berubah
   const SITE_LINK = "https://lmst-kopw.github.io/agendaojkpwt/";
 
+  // Sapaan pembuka tetap untuk pesan broadcast agenda ke WA -- ganti teks ini kapan saja
+  const SALAM_PEMBUKA_WA = "Selamat malam Bu Dina, Bu Winti, Bu Yenni dan Bapak/Ibu Pejabat serta rekan-rekan pegawai";
+
   // ===================== HELPER KOMUNIKASI KE APPS SCRIPT =====================
   function apiGet(action, params) {
     var url = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action);
@@ -1213,26 +1216,6 @@
     setTimeout(function () { window.print(); }, 250);
   }
 
-  /** Ambil nama-nama unik dari kolom "Dihadiri" seluruh agenda yang diberikan (dipisah tiap koma). */
-  function kumpulkanNamaUnikDariDihadiri(list) {
-    var hasil = [];
-    list.forEach(function (item) {
-      if (!item.dihadiri) return;
-      item.dihadiri.split(',').forEach(function (bagian) {
-        var nama = bagian.trim();
-        if (nama && hasil.indexOf(nama) === -1) hasil.push(nama);
-      });
-    });
-    return hasil;
-  }
-
-  /** Gabung array jadi kalimat gaya Indonesia: "A, B dan C". */
-  function gabungDenganDan(list) {
-    if (list.length === 0) return '';
-    if (list.length === 1) return list[0];
-    return list.slice(0, -1).join(', ') + ' dan ' + list[list.length - 1];
-  }
-
   /**
    * Susun teks agenda BESOK (relatif terhadap tanggal hari ini di perangkat admin) lalu buka
    * WhatsApp dengan teks tersebut sudah terisi di kotak chat. Admin tetap harus memilih sendiri
@@ -1251,10 +1234,7 @@
 
     var labelTanggal = NAMA_HARI[besok.getDay()] + ', ' + besok.getDate() + ' ' + NAMA_BULAN[besok.getMonth()] + ' ' + besok.getFullYear();
 
-    var namaUnik = kumpulkanNamaUnikDariDihadiri(listBesok);
-    var daftarSapaan = namaUnik.concat(['Bapak/Ibu Pejabat serta rekan-rekan pegawai']);
-
-    var teks = 'Selamat malam ' + gabungDenganDan(daftarSapaan) + '\n';
+    var teks = SALAM_PEMBUKA_WA + '\n';
     teks += 'Mohon izin kami sampaikan agenda ' + labelTanggal + ' sbb:\n\n';
 
     if (listBesok.length === 0) {
@@ -1265,7 +1245,7 @@
         var jamSelesaiFmt = formatJam(item.jamSelesai);
         var jamGabung = jamMulaiFmt + (jamSelesaiFmt !== '-' && jamSelesaiFmt !== jamMulaiFmt ? ('- ' + jamSelesaiFmt) : '');
         teks += (idx + 1) + ') ' + item.judul + '\n\n';
-        teks += '* Waktu    : ' + jamGabung + ' WIB\n';
+        teks += '* Waktu     : ' + jamGabung + ' WIB\n';
         teks += '* Tempat    : ' + (item.tempat || '-') + '\n';
         teks += '* Dihadiri    : ' + (item.dihadiri || '-') + '\n\n';
       });
