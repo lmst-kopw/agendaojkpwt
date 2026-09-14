@@ -425,6 +425,7 @@
   .detailtgl-field-value a { color: var(--c-adk); text-decoration: underline; }
 
   .detailtgl-foot { display: flex; gap: 10px; margin-top: 4px; }
+  .detailtgl-kembali { display: none; }
 
 
   /* ===== MODAL LOGIN / FORM ADMIN ===== */
@@ -576,9 +577,17 @@
     .month-nav-title { font-size: 16px; }
     .modal-box-detail { max-height: 92vh; }
     .detailtgl-body { flex-direction: column; }
-    .detailtgl-list { width: 100%; max-height: 160px; border-right: none; border-bottom: 1px solid var(--border-color); }
+    .detailtgl-list { width: 100%; border-right: none; }
     .detailtgl-grid { grid-template-columns: 1fr; }
     .detailtgl-grid .span2 { grid-column: auto; }
+
+    /* Pola master-detail di HP: tampilkan salah satu saja (daftar ATAU detail), bukan dua-duanya sekaligus */
+    .detailtgl-body.mobile-tampil-list .detailtgl-fields { display: none; }
+    .detailtgl-body:not(.mobile-tampil-list) .detailtgl-list { display: none; }
+    .detailtgl-kembali {
+      display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--red-ojk);
+      background: none; border: none; padding: 0 0 14px; margin: 0;
+    }
 
     .bottom-nav-mobile { display: flex; }
     body { padding-bottom: 88px; }
@@ -611,13 +620,13 @@
     .calendar-card { padding: 10px; }
     .calendar-grid { gap: 3px; }
     .calendar-head-cell { font-size: 9px; padding: 4px 0; }
-    .day-cell { min-height: 46px; padding: 3px; border-radius: 8px; }
-    .day-number { font-size: 10.5px; margin-bottom: 3px; }
+    .day-cell { min-height: 52px; padding: 3px; border-radius: 8px; }
+    .day-number { font-size: 10.5px; margin-bottom: 2px; }
     .day-agenda-list { display: none; }
     .day-agenda-more { display: none; }
-    .day-mobile-indicator { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 12px; }
+    .day-mobile-indicator { display: flex; align-items: center; justify-content: center; min-height: 16px; padding: 0 1px; }
     .dmi-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.25); flex-shrink: 0; }
-    .dmi-count { font-size: 9px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+    .dmi-count { font-size: 8px; font-weight: 700; color: var(--text-muted); white-space: normal; line-height: 1.15; text-align: center; }
     .month-nav { gap: 10px; }
     .month-nav-title { font-size: 14.5px; min-width: 120px; }
     .legend-row { gap: 10px; }
@@ -1191,6 +1200,7 @@
     if (!item) return;
     window._modalTglAktif = item.tanggal;
     window._modalListAktif = [item];
+    window._tampilanMobileDetail = 'detail';
     renderModalDetailTanggal(item.id);
     bukaModal('modalDetailTanggal');
   }
@@ -1458,7 +1468,7 @@
         var warnaSatu = WARNA_JABATAN[listHariIni[0].jabatan] || '#888';
         html += '<div class="day-mobile-indicator"><span class="dmi-dot" style="background:' + warnaSatu + '"></span></div>';
       } else if (listHariIni.length > 1) {
-        html += '<div class="day-mobile-indicator"><span class="dmi-count">+' + listHariIni.length + ' agenda</span></div>';
+        html += '<div class="day-mobile-indicator"><span class="dmi-count">' + listHariIni.length + ' agenda</span></div>';
       }
 
       html += '</div>';
@@ -1489,8 +1499,18 @@
     window._modalListAktif = list;
 
     var idAktif = idTerpilih && list.some(function (it) { return it.id === idTerpilih; }) ? idTerpilih : list[0].id;
+    // Di HP: kalau dibuka dari tanggal dengan banyak agenda tanpa agenda spesifik yang dipilih -> tampilkan daftar dulu.
+    // Kalau agenda spesifiknya sudah jelas (misal dari kartu "Agenda Hari Ini") atau cuma 1 agenda -> langsung ke detail.
+    window._tampilanMobileDetail = (!idTerpilih && list.length > 1) ? 'list' : 'detail';
     renderModalDetailTanggal(idAktif);
     bukaModal('modalDetailTanggal');
+  }
+
+  /** Terapkan tampilan daftar/detail di HP (mode master-detail, tidak keduanya sekaligus). */
+  function terapkanTampilanMobileModal() {
+    var body = document.querySelector('#modalDetailTanggal .detailtgl-body');
+    if (!body) return;
+    body.classList.toggle('mobile-tampil-list', window._tampilanMobileDetail === 'list');
   }
 
   function renderModalDetailTanggal(idAktif) {
@@ -1521,7 +1541,11 @@
     var jamText = jamMulaiFmt + (jamSelesaiFmt !== '-' && jamSelesaiFmt !== jamMulaiFmt ? (' - ' + jamSelesaiFmt) : '');
     var linkValue = itemAktif.link ? '<a href="' + itemAktif.link + '" target="_blank" rel="noopener">' + escapeHtml(itemAktif.link) + '</a>' : '-';
 
-    var htmlFields = '<div class="detailtgl-grid">';
+    var htmlFields = '';
+    if (list.length > 1) {
+      htmlFields += '<button class="detailtgl-kembali" onclick="kembaliKeListDetail()"><i class="fas fa-arrow-left"></i> Kembali ke daftar</button>';
+    }
+    htmlFields += '<div class="detailtgl-grid">';
     htmlFields += campoDetail('Progres Kegiatan', hitungProgresKegiatan(itemAktif.tanggal));
     htmlFields += campoDetail('Nomor Surat', itemAktif.nomorSurat || '-');
     htmlFields += campoDetail('Tanggal Kegiatan', tglObj.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }));
@@ -1542,6 +1566,7 @@
     }
 
     document.getElementById('detailTglFields').innerHTML = htmlFields;
+    terapkanTampilanMobileModal();
   }
 
   /** Bikin 1 kotak field (label + value) untuk panel detail. span2 = melebar 1 baris penuh. */
@@ -1553,7 +1578,14 @@
   }
 
   function pilihAgendaDariDaftarTanggal(id) {
+    window._tampilanMobileDetail = 'detail';
     renderModalDetailTanggal(id);
+  }
+
+  /** Tombol "Kembali ke daftar" di panel detail (khusus tampilan HP). */
+  function kembaliKeListDetail() {
+    window._tampilanMobileDetail = 'list';
+    terapkanTampilanMobileModal();
   }
 
   // ===================== RENDER PANEL HARI INI =====================
