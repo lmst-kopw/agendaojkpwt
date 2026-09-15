@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda Kegiatan - OJK</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%239c2440'/><stop offset='45%' stop-color='%237c1230'/><stop offset='100%' stop-color='%2357091f'/></linearGradient></defs><rect x='2' y='2' width='60' height='60' rx='16' fill='url(%23g)'/><rect x='15' y='19' width='34' height='30' rx='5' fill='none' stroke='white' stroke-width='3.4'/><line x1='15' y1='28' x2='49' y2='28' stroke='white' stroke-width='3.4'/><line x1='23' y1='14' x2='23' y2='22' stroke='white' stroke-width='3.4' stroke-linecap='round'/><line x1='41' y1='14' x2='41' y2='22' stroke='white' stroke-width='3.4' stroke-linecap='round'/><rect x='21' y='33' width='6.5' height='6.5' rx='1.6' fill='white'/><rect x='36.5' y='33' width='6.5' height='6.5' rx='1.6' fill='white'/><rect x='21' y='41.5' width='6.5' height='6.5' rx='1.6' fill='white'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-splash" id="appSplash">
+  <div class="app-splash-card">
+    <div class="app-splash-icon"><i class="fas fa-calendar-days"></i></div>
+    <div>
+      <div class="app-splash-title">Memuat agenda</div>
+      <div class="app-splash-sub">Mohon tunggu</div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="wrap">
+
+  <!-- ==================== TOPBAR ==================== -->
+  <div class="topbar-stick-wrap">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="header-logo"><i class="fas fa-calendar-days"></i></div>
+      <div>
+        <div class="header-title">Agenda Kegiatan</div>
+        <div class="header-subtitle">OJK Purwokerto</div>
+      </div>
+    </div>
+    <div class="topbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="inputPencarian" placeholder="Cari agenda, tempat, peserta, surat..." oninput="onSearchChange()">
+    </div>
+    <div class="topbar-nav">
+      <button class="nav-pill active" id="navKalender" onclick="gantiTampilan('kalender')"><i class="fas fa-calendar"></i> Kalender</button>
+      <button class="nav-pill" id="navTabel" onclick="gantiTampilan('tabel')"><i class="fas fa-table-cells"></i> Tabel</button>
+      <button class="nav-pill" id="btnAdmin" onclick="onKlikTombolAdmin()">
+        <i class="fas fa-lock"></i><span id="labelBtnAdmin">Admin</span>
+      </button>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn btn-refresh" title="Refresh data" onclick="muatUlangData()"><i class="fas fa-rotate" id="iconRefresh"></i> Refresh</button>
+    </div>
+  </div>
+  </div>
+
+  <!-- ==================== BAR ADMIN (muncul setelah login) ==================== -->
+  <div class="admin-bar" id="adminBar">
+    <div class="admin-bar-text"><i class="fas fa-circle-check"></i> Mode Admin aktif - kamu bisa menambah, mengubah, dan menghapus agenda.</div>
+    <div class="admin-bar-actions">
+      <button class="btn-tambah-agenda" onclick="bukaFormAgenda()"><i class="fas fa-plus"></i> Tambah Agenda</button>
+      <button class="btn-tambah-agenda btn-wa-agenda" onclick="kirimAgendaBesokKeWa()"><i class="fab fa-whatsapp"></i> Kirim Agenda Besok</button>
+    </div>
+  </div>
+
+  <!-- ==================== 3 KARTU RINGKASAN: JABATAN / PERIODE / STATUS DATA ==================== -->
+  <div class="summary-cards-row">
+    <div class="summary-card">
+      <div class="summary-card-head"><span class="summary-label">Jabatan</span><i class="fas fa-users summary-icon"></i></div>
+      <div class="summary-title">Filter Agenda</div>
+      <div class="filter-pills" id="pillJabatan">
+        <button class="pill-btn active" data-val="SEMUA" onclick="setFilterJabatan('SEMUA', this)">Semua</button>
+        <button class="pill-btn" data-val="ADK" onclick="setFilterJabatan('ADK', this)">ADK</button>
+        <button class="pill-btn" data-val="Kepala Kantor" onclick="setFilterJabatan('Kepala Kantor', this)">Kepala Kantor</button>
+        <button class="pill-btn" data-val="Pegawai" onclick="setFilterJabatan('Pegawai', this)">Pegawai</button>
+        <button class="pill-btn" data-val="Gabungan" onclick="setFilterJabatan('Gabungan', this)">Gabungan</button>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-head"><span class="summary-label">Periode</span><i class="fas fa-calendar-days summary-icon"></i></div>
+      <div class="summary-title">Rentang Waktu</div>
+      <div class="filter-pills" id="pillPeriode">
+        <button class="pill-btn active" data-val="BULAN_INI" onclick="setFilterPeriode('BULAN_INI', this)">Bulan Ini</button>
+        <button class="pill-btn" data-val="MINGGU_INI" onclick="setFilterPeriode('MINGGU_INI', this)">Minggu Ini</button>
+        <button class="pill-btn" data-val="HARI_INI" onclick="setFilterPeriode('HARI_INI', this)">Hari Ini</button>
+        <button class="pill-btn" data-val="BESOK" onclick="setFilterPeriode('BESOK', this)">Besok</button>
+        <button class="pill-btn" data-val="SEMUA" onclick="setFilterPeriode('SEMUA', this)">Semua</button>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-head"><span class="summary-label">Sinkronisasi</span><span class="status-dot"></span></div>
+      <div class="summary-title">Status Data</div>
+      <div class="summary-big-number" id="totalAgendaCount">- agenda</div>
+      <div class="summary-sub" id="labelTersinkron">Belum disinkronkan</div>
+    </div>
+  </div>
+
+  <!-- ==================== TAMPILAN: KALENDER ==================== -->
+  <div id="viewKalender">
+
+  <!-- ==================== NAVIGASI BULAN + LEGENDA + HARI INI ==================== -->
+  <div class="month-nav-row">
+    <div class="month-nav-box">
+      <button class="month-nav-btn" onclick="gantiBulan(-1)"><i class="fas fa-chevron-left"></i></button>
+      <div>
+        <div class="month-nav-title" id="labelBulanTahun">-</div>
+        <div class="month-nav-caption">Kalender Bulanan</div>
+      </div>
+      <button class="month-nav-btn" onclick="gantiBulan(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div class="legend-row">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--c-adk)"></span>ADK</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--c-kepala)"></span>Kepala Kantor</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--c-pegawai)"></span>Pegawai</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--c-gabungan)"></span>Gabungan</div>
+    </div>
+
+    <button class="btn-hari-ini" onclick="kembaliKeBulanIni()"><i class="fas fa-location-crosshairs"></i> Hari ini</button>
+  </div>
+
+  <!-- ==================== KALENDER BESAR ==================== -->
+  <div class="calendar-card">
+    <div class="calendar-head-row">
+      <div class="calendar-head-cell">Min</div><div class="calendar-head-cell">Sen</div><div class="calendar-head-cell">Sel</div>
+      <div class="calendar-head-cell">Rab</div><div class="calendar-head-cell">Kam</div><div class="calendar-head-cell">Jum</div><div class="calendar-head-cell">Sab</div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+      <div class="loading-text">Memuat kalender...</div>
+    </div>
+  </div>
+
+  <!-- ==================== PANEL AGENDA HARI INI ==================== -->
+  <div class="today-card">
+    <div class="today-card-header">
+      <i class="fas fa-calendar-day"></i>
+      <div>
+        <div class="today-card-title">Agenda Hari Ini</div>
+        <div class="today-card-date" id="labelTanggalHariIni">-</div>
+        <div class="today-card-count" id="labelJumlahAgendaHariIni">-</div>
+      </div>
+    </div>
+    <div id="daftarAgendaHariIni">
+      <div class="loading-text">Memuat agenda hari ini...</div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- ==================== TAMPILAN: TABEL ==================== -->
+  <div id="viewTabel" style="display:none;">
+    <div class="table-card">
+      <div class="table-card-head">
+        <div>
+          <div class="table-card-title">Daftar Kegiatan Kantor OJK Purwokerto</div>
+          <div class="table-card-sub">Daftar agenda sesuai filter aktif.</div>
+        </div>
+        <div class="table-card-actions">
+          <button class="btn-laporan btn-laporan-preview" onclick="previewLaporanPdf()"><i class="fas fa-eye"></i> Preview</button>
+          <button class="btn-laporan btn-laporan-unduh" onclick="unduhLaporanPdf()"><i class="fas fa-file-pdf"></i> Unduh PDF</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="tabel-agenda">
+          <thead>
+            <tr>
+              <th>No</th><th>Tanggal</th><th class="kolom-jam">Jam</th><th>Kategori</th><th>Nama Kegiatan</th>
+              <th>Tempat/Media</th><th>Dihadiri Oleh</th><th>Progres</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelAgendaBody">
+            <tr><td colspan="9" class="loading-text">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== BOTTOM NAV MOBILE ==================== -->
+<div class="bottom-nav-mobile" id="bottomNavMobile">
+  <button class="bnm-item active" id="bnmKalender" onclick="gantiTampilan('kalender')">
+    <i class="fas fa-calendar"></i><span>Kalender</span>
+  </button>
+  <button class="bnm-item" id="bnmTabel" onclick="gantiTampilan('tabel')">
+    <i class="fas fa-table-cells"></i><span>Tabel</span>
+  </button>
+  <button class="bnm-item bnm-wa" id="bnmWa" onclick="kirimAgendaBesokKeWa()">
+    <i class="fab fa-whatsapp"></i><span>Kirim WA</span>
+  </button>
+  <button class="bnm-item" id="bnmAdmin" onclick="onKlikTombolAdmin()">
+    <i class="fas fa-lock"></i><span id="bnmAdminLabel">Admin</span>
+  </button>
+</div>
+
+<!-- ==================== MODAL: DETAIL AGENDA (daftar + detail dalam 1 panel) ==================== -->
+<div class="modal-overlay" id="modalDetailTanggal">
+  <div class="modal-box modal-box-detail">
+    <div class="detailtgl-head">
+      <div>
+        <div class="detailtgl-eyebrow">Detail Agenda</div>
+        <div class="detailtgl-date" id="detailTglJudul">-</div>
+      </div>
+      <button class="detailtgl-close" onclick="tutupModal('modalDetailTanggal')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="detailtgl-body">
+      <div class="detailtgl-list" id="detailTglList">
+        <!-- diisi lewat JS -->
+      </div>
+      <div class="detailtgl-fields" id="detailTglFields">
+        <!-- diisi lewat JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: PREVIEW / CETAK LAPORAN ==================== -->
+<div class="modal-overlay" id="modalLaporan">
+  <div class="modal-box modal-box-laporan">
+    <div class="modal-head modal-laporan-noprint">
+      <div class="modal-head-title">Preview Laporan</div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="btn-cetak-laporan" onclick="window.print()"><i class="fas fa-print"></i> Cetak / Unduh PDF</button>
+        <button class="modal-close" onclick="tutupModal('modalLaporan')"><i class="fas fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="modal-body" style="padding: 0;">
+      <div id="modalLaporanCetak" class="laporan-cetak"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: LOGIN ADMIN ==================== -->
+<div class="modal-overlay" id="modalLogin">
+  <div class="modal-box modal-box-login">
+    <div class="login-hero">
+      <button class="modal-close login-close" onclick="tutupModal('modalLogin')"><i class="fas fa-xmark"></i></button>
+      <div class="login-badge"><i class="fas fa-calendar-check"></i></div>
+      <div class="login-title">Masuk sebagai Admin</div>
+      <div class="login-sub">Akses khusus pengelola Agenda Kegiatan Kantor OJK Purwokerto</div>
+    </div>
+    <div class="modal-body login-form-area">
+      <div class="form-group">
+        <label>Password Admin</label>
+        <div class="login-input-wrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="inputPasswordAdmin" placeholder="Masukkan password admin" onkeydown="if(event.key==='Enter') submitLoginAdmin()">
+        </div>
+      </div>
+      <div class="login-error" id="loginErrorBox" style="display:none;"></div>
+      <button class="btn-submit-full" onclick="submitLoginAdmin()">Masuk</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== MODAL: KONFIRMASI KELUAR ADMIN ==================== -->
+<div class="modal-overlay" id="modalKonfirmasiLogout">
+  <div class="modal-box modal-box-konfirmasi">
+    <div class="konfirmasi-icon"><i class="fas fa-right-from-bracket"></i></div>
+    <div class="konfirmasi-title">Keluar dari mode Admin?</div>
+    <div class="konfirmasi-sub">Kamu tidak akan bisa menambah, mengubah, atau menghapus agenda sampai login lagi.</div>
+    <div class="konfirmasi-actions">
+      <button class="btn-flat konfirmasi-batal" onclick="tutupModal('modalKonfirmasiLogout')">Batal</button>
+      <button class="btn-flat konfirmasi-keluar" onclick="konfirmasiLogoutAdmin()">Ya, Keluar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: TAMBAH / EDIT AGENDA (khusus admin) ==================== -->
+<div class="modal-overlay" id="modalForm">
+  <div class="modal-box modal-box-admin">
+    <div class="modal-head">
+      <div class="modal-head-title" id="judulModalForm">Tambah Agenda Baru</div>
+      <button class="modal-close" onclick="tutupModal('modalForm')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="formAgenda" onsubmit="submitFormAgenda(event)">
+        <input type="hidden" id="fId">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Nomor Surat</label>
+            <input type="text" id="fNomorSurat" placeholder="Contoh: 001/ST/2026">
+          </div>
+          <div class="form-group">
+            <label>Jabatan / Kategori</label>
+            <select id="fJabatan" required>
+              <option value="ADK">ADK</option>
+              <option value="Kepala Kantor">Kepala Kantor</option>
+              <option value="Pegawai" selected>Pegawai</option>
+              <option value="Gabungan">Gabungan</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Judul Agenda</label>
+          <input type="text" id="fJudul" placeholder="Contoh: Rapat Koordinasi Bulanan" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Tanggal Kegiatan</label>
+            <input type="date" id="fTanggal" required>
+          </div>
+          <div class="form-group">
+            <label>Jam Mulai</label>
+            <input type="time" id="fJamMulai">
+          </div>
+          <div class="form-group">
+            <label>Jam Selesai</label>
+            <input type="time" id="fJamSelesai">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tempat Kegiatan</label>
+          <input type="text" id="fTempat" placeholder="Contoh: Ruang Rapat Lantai 2">
+        </div>
+        <div class="form-group">
+          <label>Dihadiri Oleh</label>
+          <input type="text" id="fDihadiri" placeholder="Contoh: Kepala Kantor, ADK, Seluruh Pegawai">
+        </div>
+        <div class="form-group">
+          <label>Link Kegiatan (opsional)</label>
+          <input type="text" id="fLink" placeholder="Link Zoom/GMeet/Dokumen (opsional)">
+        </div>
+        <div class="form-group">
+          <label>Keterangan (opsional)</label>
+          <textarea id="fKeterangan" rows="2" placeholder="Catatan tambahan (opsional)"></textarea>
+        </div>
+        <button type="submit" class="btn-submit-full" id="btnSubmitForm">Simpan Agenda</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
