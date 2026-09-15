@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda Kegiatan - OJK</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+  :root {
+    --red-ojk: #7a1128;
+    --red-dark: #5c0c1e;
+    --navy-dark: #232527;
+    --text-muted: #6b5a63;
+    --border-color: #ecdfe0;
+    --bg-main: #f6f4f2;
+    --white: #ffffff;
+    --success: #4d9a4d;
+
+    --c-adk: #3b6ea5;
+    --c-kepala: #7a1128;
+    --c-pegawai: #2f7a5f;
+    --c-gabungan: #8a4fae;
+  }
+  body { background: var(--bg-main); color: var(--navy-dark); min-height: 100vh; padding-bottom: 40px; }
+  h1, h2, h3 { font-family: 'Sora', sans-serif; }
+  button, input, select { font-family: 'Plus Jakarta Sans', sans-serif; }
+  button { cursor: pointer; transition: transform 0.08s ease; }
+  button:active { transform: scale(0.96); }
+
+  .wrap { width: 100%; max-width: 1800px; margin: 0 auto; padding: 18px 26px; }
+
+  .header-card {
+    background: var(--white); border-radius: 16px; padding: 16px 20px; margin-bottom: 16px;
+    border: 1px solid var(--border-color); box-shadow: 0 6px 18px rgba(122,17,40,0.06);
+    display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
+  }
+  .header-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 220px; }
+  .header-logo {
+    width: 46px; height: 46px; border-radius: 12px; background: #faeef1; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--red-ojk);
+    overflow: hidden;
+  }
+  .header-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .header-title { font-weight: 800; font-size: 17px; color: var(--red-ojk); line-height: 1.15; }
+  .header-subtitle { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+  .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .search-box { position: relative; }
+  .search-box input {
+    width: 200px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border-color);
+    padding: 0 14px 0 34px; font-size: 13px; background: #faf9f8;
+  }
+  .search-box input:focus { outline: none; border-color: var(--red-ojk); background: var(--white); }
+  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 12px; }
+
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border-color);
+    background: var(--white); color: var(--navy-dark); font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { background: #faf5f6; border-color: var(--red-ojk); color: var(--red-ojk); }
+
+  .btn-admin {
+    height: 40px; padding: 0 16px; border-radius: 10px; border: none;
+    background: var(--red-ojk); color: #fff; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .btn-admin:hover { background: var(--red-dark); }
+  .btn-admin.is-active { background: var(--success); }
+
+  .filter-card {
+    background: var(--white); border-radius: 16px; padding: 16px 20px; margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+  }
+  .filter-row { margin-bottom: 14px; }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--text-muted); margin-bottom: 8px;
+  }
+  .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill-btn {
+    padding: 8px 16px; border-radius: 20px; border: 1.5px solid var(--border-color);
+    background: var(--white); color: var(--navy-dark); font-size: 12.5px; font-weight: 600;
+  }
+  .pill-btn:hover { border-color: var(--red-ojk); }
+  .pill-btn.active { background: var(--red-ojk); border-color: var(--red-ojk); color: #fff; }
+
+  .month-nav {
+    display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 12px;
+  }
+  .month-nav-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border-color);
+    background: var(--white); color: var(--red-ojk); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .month-nav-btn:hover { background: #faeef1; }
+  .month-nav-title { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 19px; color: var(--red-ojk); min-width: 190px; text-align: center; }
+  .month-nav-today {
+    font-size: 11.5px; font-weight: 700; color: var(--blue-accent, #3b6ea5); cursor: pointer;
+    text-decoration: underline; margin-left: 4px;
+  }
+
+  .legend-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .calendar-card {
+    background: var(--white); border-radius: 18px; padding: 18px; margin-bottom: 20px;
+    border: 1px solid var(--border-color); box-shadow: 0 10px 26px rgba(122,17,40,0.06);
+  }
+  .calendar-head-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+  .calendar-head-cell {
+    text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    color: var(--text-muted); padding: 6px 0; letter-spacing: 0.5px;
+  }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day-cell {
+    min-height: 118px; border-radius: 12px; border: 1px solid var(--border-color);
+    background: #fbfafa; padding: 6px; cursor: default; display: flex; flex-direction: column;
+    transition: box-shadow 0.15s ease; min-width: 0; overflow: hidden;
+  }
+  .day-cell.kosong { background: transparent; border: none; }
+  .day-cell.ada-agenda { cursor: pointer; }
+  .day-cell.ada-agenda:hover { box-shadow: 0 4px 14px rgba(122,17,40,0.14); border-color: var(--red-ojk); }
+  .day-cell.hari-ini { border: 2px solid var(--red-ojk); background: #fff8f8; }
+  .day-number { font-size: 12.5px; font-weight: 700; color: var(--navy-dark); margin-bottom: 4px; }
+  .day-cell.hari-ini .day-number { color: var(--red-ojk); }
+  .day-agenda-list { display: flex; flex-direction: column; gap: 3px; overflow: hidden; min-width: 0; }
+  .day-agenda-chip {
+    font-size: 9.5px; font-weight: 700; color: #fff; padding: 2px 6px; border-radius: 5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; min-width: 0; display: block;
+  }
+  .day-agenda-more { font-size: 9.5px; color: var(--text-muted); font-weight: 700; padding-left: 2px; }
+
+  .today-card {
+    background: var(--white); border-radius: 18px; padding: 20px; border: 1px solid var(--border-color);
+  }
+  .today-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .today-card-header i { color: var(--red-ojk); font-size: 18px; }
+  .today-card-title { font-weight: 800; font-size: 15px; color: var(--red-ojk); }
+  .today-card-date { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+  .agenda-item-mini {
+    display: flex; gap: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 10px;
+    cursor: pointer; transition: background 0.15s ease;
+  }
+  .agenda-item-mini:hover { background: #faf7f7; }
+  .agenda-item-mini:last-child { margin-bottom: 0; }
+  .agenda-item-mini .color-bar { width: 4px; border-radius: 3px; flex-shrink: 0; }
+  .agenda-item-mini-body { flex: 1; min-width: 0; }
+  .agenda-item-mini-title { font-weight: 700; font-size: 13.5px; color: var(--navy-dark); }
+  .agenda-item-mini-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .agenda-item-mini-jam {
+    font-size: 11px; font-weight: 700; color: var(--red-ojk); background: #faeef1;
+    padding: 3px 9px; border-radius: 20px; align-self: flex-start; white-space: nowrap;
+  }
+
+  .empty-state { text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 13px; }
+  .empty-state i { font-size: 26px; margin-bottom: 8px; display: block; color: #d8cdd0; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(35,37,39,0.55); display: none;
+    align-items: center; justify-content: center; z-index: 9000; padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--white); border-radius: 18px; width: 100%; max-width: 440px;
+    max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-box-admin { max-width: 520px; }
+  .modal-head {
+    padding: 18px 22px; border-bottom: 1px solid var(--border-color); display: flex;
+    justify-content: space-between; align-items: flex-start; gap: 10px;
+  }
+  .modal-head-title { font-weight: 800; font-size: 15px; color: var(--red-ojk); line-height: 1.3; }
+  .modal-close { background: none; border: none; font-size: 18px; color: var(--text-muted); flex-shrink: 0; }
+  .modal-body { padding: 18px 22px; }
+  .detail-row { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+  .detail-row:last-child { margin-bottom: 0; }
+  .detail-row i { width: 18px; text-align: center; color: var(--red-ojk); font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+  .detail-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 2px; }
+  .detail-value { font-size: 13.5px; font-weight: 600; color: var(--navy-dark); word-break: break-word; }
+  .detail-value a { color: var(--blue-accent, #3b6ea5); text-decoration: underline; }
+  .jabatan-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; color: #fff; font-size: 10.5px; font-weight: 700; }
+
+  .modal-foot { padding: 14px 22px 20px; display: flex; gap: 10px; border-top: 1px solid var(--border-color); }
+  .btn-flat {
+    flex: 1; height: 42px; border-radius: 10px; font-weight: 700; font-size: 13px; border: none;
+  }
+  .btn-flat-edit { background: #eef4fa; color: var(--blue-accent, #3b6ea5); }
+  .btn-flat-hapus { background: #fdecec; color: #c0392b; }
+
+  .list-agenda-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border-color);
+    border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .list-agenda-item:last-child { margin-bottom: 0; }
+  .list-agenda-item:hover { background: #faf7f7; border-color: var(--red-ojk); }
+  .list-agenda-item .color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .list-agenda-item-body { flex: 1; min-width: 0; }
+  .list-agenda-item-title { font-weight: 700; font-size: 13.5px; color: var(--navy-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-agenda-item-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .list-agenda-item i.chevron { color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted); margin-bottom: 6px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 10px 13px; border: 1.5px solid var(--border-color); border-radius: 9px;
+    font-size: 13.5px; background: #faf9f8;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--red-ojk); background: #fff;
+  }
+  .form-row-2 { display: flex; gap: 10px; }
+  .form-row-2 .form-group { flex: 1; }
+  .btn-submit-full {
+    width: 100%; height: 44px; border-radius: 10px; border: none; background: var(--red-ojk);
+    color: #fff; font-weight: 700; font-size: 13.5px;
+  }
+  .btn-submit-full:hover { background: var(--red-dark); }
+
+  .admin-bar {
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    background: #eafaf0; border: 1px solid #bfe8cd; border-radius: 12px; padding: 10px 16px; margin-bottom: 16px;
+  }
+  .admin-bar.show { display: flex; }
+  .admin-bar-text { font-size: 12.5px; font-weight: 700; color: #256b3f; display: flex; align-items: center; gap: 8px; }
+  .btn-tambah-agenda {
+    background: var(--success); color: #fff; border: none; border-radius: 9px; padding: 9px 16px;
+    font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 6px;
+  }
+
+  .toast-container { position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--navy-dark); color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px;
+    font-weight: 600; min-width: 230px; max-width: 340px; border-left: 4px solid var(--red-ojk);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-14px); opacity: 0; animation: toastIn 0.25s forwards;
+  }
+  .toast.success { border-left-color: var(--success); }
+  .toast.error { border-left-color: #c0392b; }
+  @keyframes toastIn { to { transform: translateY(0); opacity: 1; } }
+
+  .loading-text { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+
+  :fullscreen, :-webkit-full-screen, :-moz-full-screen { background: var(--bg-main); }
+  :fullscreen body, :-webkit-full-screen body, :-moz-full-screen body { overflow-y: auto; }
+  :fullscreen .wrap, :-webkit-full-screen .wrap, :-moz-full-screen .wrap { max-width: 100%; padding: 26px 34px; }
+  :fullscreen .calendar-card, :-webkit-full-screen .calendar-card, :-moz-full-screen .calendar-card { padding: 28px; }
+  :fullscreen .day-cell, :-webkit-full-screen .day-cell, :-moz-full-screen .day-cell { min-height: 150px; padding: 10px; }
+  :fullscreen .day-number, :-webkit-full-screen .day-number, :-moz-full-screen .day-number { font-size: 15px; }
+  :fullscreen .day-agenda-chip, :-webkit-full-screen .day-agenda-chip, :-moz-full-screen .day-agenda-chip { font-size: 12px; padding: 4px 9px; }
+  :fullscreen .calendar-head-cell, :-webkit-full-screen .calendar-head-cell, :-moz-full-screen .calendar-head-cell { font-size: 13px; }
+  :fullscreen .month-nav-title, :-webkit-full-screen .month-nav-title, :-moz-full-screen .month-nav-title { font-size: 24px; }
+  :fullscreen .header-title, :-webkit-full-screen .header-title, :-moz-full-screen .header-title { font-size: 20px; }
+  :fullscreen .today-card, :-webkit-full-screen .today-card, :-moz-full-screen .today-card { padding: 26px; }
+
+  @media (max-width: 640px) {
+    .header-card { flex-direction: column; align-items: stretch; }
+    .header-actions { justify-content: space-between; }
+    .search-box input { width: 100%; }
+    .day-cell { min-height: 68px; }
+    .day-agenda-chip { font-size: 8.5px; }
+    .month-nav-title { font-size: 16px; min-width: 150px; }
+  }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 10px; }
+    .calendar-card { padding: 10px; }
+    .calendar-grid { gap: 3px; }
+    .calendar-head-cell { font-size: 9px; padding: 4px 0; }
+    .day-cell { min-height: 46px; padding: 3px; border-radius: 8px; }
+    .day-number { font-size: 10.5px; margin-bottom: 3px; }
+    .day-agenda-list { flex-direction: row; flex-wrap: wrap; gap: 3px; align-items: center; }
+    .day-agenda-chip {
+      width: 7px; height: 7px; min-width: 7px; padding: 0; border-radius: 50%;
+      font-size: 0; line-height: 0; overflow: hidden;
+    }
+    .day-agenda-more { display: none; }
+    .month-nav { gap: 10px; }
+    .month-nav-title { font-size: 14.5px; min-width: 120px; }
+    .legend-row { gap: 10px; }
+    .legend-item { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="wrap">
+
+  <div class="header-card">
+    <div class="header-brand">
+      <div class="header-logo"><i class="fas fa-calendar-days"></i></div>
+      <div>
+        <div class="header-title">Agenda Kegiatan</div>
+        <div class="header-subtitle">Otoritas Jasa Keuangan</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="inputPencarian" placeholder="Cari agenda..." oninput="onSearchChange()">
+      </div>
+      <button class="icon-btn" title="Refresh data" onclick="muatUlangData()"><i class="fas fa-rotate"></i></button>
+      <button class="icon-btn" id="btnFullscreen" title="Layar penuh" onclick="toggleFullscreen()"><i class="fas fa-expand" id="iconFullscreen"></i></button>
+      <button class="btn-admin" id="btnAdmin" onclick="onKlikTombolAdmin()">
+        <i class="fas fa-user-shield"></i><span id="labelBtnAdmin">Admin</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="admin-bar" id="adminBar">
+    <div class="admin-bar-text"><i class="fas fa-circle-check"></i> Mode Admin aktif - kamu bisa menambah, mengubah, dan menghapus agenda.</div>
+    <button class="btn-tambah-agenda" onclick="bukaFormAgenda()"><i class="fas fa-plus"></i> Tambah Agenda</button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-row">
+      <div class="filter-label">Filter Jabatan</div>
+      <div class="filter-pills" id="pillJabatan">
+        <button class="pill-btn active" data-val="SEMUA" onclick="setFilterJabatan('SEMUA', this)">Semua</button>
+        <button class="pill-btn" data-val="ADK" onclick="setFilterJabatan('ADK', this)">ADK</button>
+        <button class="pill-btn" data-val="Kepala Kantor" onclick="setFilterJabatan('Kepala Kantor', this)">Kepala Kantor</button>
+        <button class="pill-btn" data-val="Pegawai" onclick="setFilterJabatan('Pegawai', this)">Pegawai</button>
+        <button class="pill-btn" data-val="Gabungan" onclick="setFilterJabatan('Gabungan', this)">Gabungan</button>
+      </div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-label">Periode</div>
+      <div class="filter-pills" id="pillPeriode">
+        <button class="pill-btn" data-val="BULAN_INI" onclick="setFilterPeriode('BULAN_INI', this)">Bulan Ini</button>
+        <button class="pill-btn" data-val="MINGGU_INI" onclick="setFilterPeriode('MINGGU_INI', this)">Minggu Ini</button>
+        <button class="pill-btn" data-val="HARI_INI" onclick="setFilterPeriode('HARI_INI', this)">Hari Ini</button>
+        <button class="pill-btn" data-val="BESOK" onclick="setFilterPeriode('BESOK', this)">Besok</button>
+        <button class="pill-btn active" data-val="SEMUA" onclick="setFilterPeriode('SEMUA', this)">Semua</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="month-nav">
+    <button class="month-nav-btn" onclick="gantiBulan(-1)"><i class="fas fa-chevron-left"></i></button>
+    <div>
+      <div class="month-nav-title" id="labelBulanTahun">-</div>
+    </div>
+    <button class="month-nav-btn" onclick="gantiBulan(1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+  <div style="text-align:center; margin-bottom:14px;">
+    <span class="month-nav-today" onclick="kembaliKeBulanIni()">Kembali ke bulan ini</span>
+  </div>
+
+  <div class="legend-row">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--c-adk)"></span>ADK</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--c-kepala)"></span>Kepala Kantor</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--c-pegawai)"></span>Pegawai</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--c-gabungan)"></span>Gabungan</div>
+  </div>
+
+  <div class="calendar-card">
+    <div class="calendar-head-row">
+      <div class="calendar-head-cell">Min</div><div class="calendar-head-cell">Sen</div><div class="calendar-head-cell">Sel</div>
+      <div class="calendar-head-cell">Rab</div><div class="calendar-head-cell">Kam</div><div class="calendar-head-cell">Jum</div><div class="calendar-head-cell">Sab</div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+      <div class="loading-text">Memuat kalender...</div>
+    </div>
+  </div>
+
+  <div class="today-card">
+    <div class="today-card-header">
+      <i class="fas fa-calendar-day"></i>
+      <div>
+        <div class="today-card-title">Agenda Hari Ini</div>
+        <div class="today-card-date" id="labelTanggalHariIni">-</div>
+      </div>
+    </div>
+    <div id="daftarAgendaHariIni">
+      <div class="loading-text">Memuat agenda hari ini...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modalDaftarTanggal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-title" id="daftarTanggalJudul">Agenda pada tanggal ini</div>
+      <button class="modal-close" onclick="tutupModal('modalDaftarTanggal')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="daftarTanggalIsi"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalDetail">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-head-title" id="detailJudul">-</div>
+        <span class="jabatan-badge" id="detailJabatanBadge" style="margin-top:6px;">-</span>
+      </div>
+      <button class="modal-close" onclick="tutupModal('modalDetail')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row">
+        <i class="fas fa-file-lines"></i>
+        <div><div class="detail-label">Nomor Surat</div><div class="detail-value" id="detailNomorSurat">-</div></div>
+      </div>
+      <div class="detail-row">
+        <i class="fas fa-calendar"></i>
+        <div><div class="detail-label">Tanggal Kegiatan</div><div class="detail-value" id="detailTanggal">-</div></div>
+      </div>
+      <div class="detail-row">
+        <i class="fas fa-clock"></i>
+        <div><div class="detail-label">Jam Kegiatan</div><div class="detail-value" id="detailJam">-</div></div>
+      </div>
+      <div class="detail-row">
+        <i class="fas fa-location-dot"></i>
+        <div><div class="detail-label">Tempat Kegiatan</div><div class="detail-value" id="detailTempat">-</div></div>
+      </div>
+      <div class="detail-row">
+        <i class="fas fa-users"></i>
+        <div><div class="detail-label">Dihadiri Oleh</div><div class="detail-value" id="detailDihadiri">-</div></div>
+      </div>
+      <div class="detail-row" id="baris_link">
+        <i class="fas fa-link"></i>
+        <div><div class="detail-label">Link Kegiatan</div><div class="detail-value" id="detailLink">-</div></div>
+      </div>
+      <div class="detail-row" id="baris_keterangan">
+        <i class="fas fa-note-sticky"></i>
+        <div><div class="detail-label">Keterangan</div><div class="detail-value" id="detailKeterangan">-</div></div>
+      </div>
+    </div>
+    <div class="modal-foot" id="modalFootAdmin" style="display:none;">
+      <button class="btn-flat btn-flat-edit" onclick="editAgendaDariDetail()"><i class="fas fa-pen"></i> Edit</button>
+      <button class="btn-flat btn-flat-hapus" onclick="hapusAgendaDariDetail()"><i class="fas fa-trash"></i> Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalLogin">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-title"><i class="fas fa-lock"></i> Masuk sebagai Admin</div>
+      <button class="modal-close" onclick="tutupModal('modalLogin')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Password Admin</label>
+        <input type="password" id="inputPasswordAdmin" placeholder="Masukkan password admin" onkeydown="if(event.key==='Enter') submitLoginAdmin()">
+      </div>
+      <button class="btn-submit-full" onclick="submitLoginAdmin()">Masuk</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalForm">
+  <div class="modal-box modal-box-admin">
+    <div class="modal-head">
+      <div class="modal-head-title" id="judulModalForm">Tambah Agenda Baru</div>
+      <button class="modal-close" onclick="tutupModal('modalForm')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="formAgenda" onsubmit="submitFormAgenda(event)">
+        <input type="hidden" id="fId">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Nomor Surat</label>
+            <input type="text" id="fNomorSurat" placeholder="Contoh: 001/ST/2026">
+          </div>
+          <div class="form-group">
+            <label>Jabatan / Kategori</label>
+            <select id="fJabatan" required>
+              <option value="ADK">ADK</option>
+              <option value="Kepala Kantor">Kepala Kantor</option>
+              <option value="Pegawai" selected>Pegawai</option>
+              <option value="Gabungan">Gabungan</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Judul Agenda</label>
+          <input type="text" id="fJudul" placeholder="Contoh: Rapat Koordinasi Bulanan" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Tanggal Kegiatan</label>
+            <input type="date" id="fTanggal" required>
+          </div>
+          <div class="form-group">
+            <label>Jam Mulai</label>
+            <input type="time" id="fJamMulai">
+          </div>
+          <div class="form-group">
+            <label>Jam Selesai</label>
+            <input type="time" id="fJamSelesai">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tempat Kegiatan</label>
+          <input type="text" id="fTempat" placeholder="Contoh: Ruang Rapat Lantai 2">
+        </div>
+        <div class="form-group">
+          <label>Dihadiri Oleh</label>
+          <input type="text" id="fDihadiri" placeholder="Contoh: Kepala Kantor, ADK, Seluruh Pegawai">
+        </div>
+        <div class="form-group">
+          <label>Link Kegiatan (opsional)</label>
+          <input type="text" id="fLink" placeholder="Link Zoom/GMeet/Dokumen (opsional)">
+        </div>
+        <div class="form-group">
+          <label>Keterangan (opsional)</label>
+          <textarea id="fKeterangan" rows="2" placeholder="Catatan tambahan (opsional)"></textarea>
+        </div>
+        <button type="submit" class="btn-submit-full" id="btnSubmitForm">Simpan Agenda</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // =====================================================================
+  // GANTI URL DI BAWAH INI dengan URL Web App Apps Script kamu
+  // (Deploy > New deployment > Web app, Execute as Me, Access: Anyone)
+  // Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
+  // =====================================================================
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPLCk46wgHa2RMnHJ2gNKOUf7lCALH-RTK1r_wbRpumqURQ9ajbBq-u7yqWnVgMwk/exec";
+
+  // ===================== HELPER KOMUNIKASI KE APPS SCRIPT =====================
+  function apiGet(action, params) {
+    var url = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action);
+    if (params) {
+      Object.keys(params).forEach(function (k) {
+        url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+      });
+    }
+    return fetch(url).then(function (r) { return r.json(); });
+  }
+
+  function apiPost(action, payload) {
+    // Content-Type "text/plain" sengaja dipakai supaya browser TIDAK
+    // mengirim CORS preflight (OPTIONS), karena Apps Script Web App
+    // tidak bisa menjawab preflight tersebut.
+    return fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: action, payload: payload })
+    }).then(function (r) { return r.json(); });
+  }
+
+  // ===================== STATE GLOBAL =====================
+  var semuaAgenda = [];
+  var bulanAktif = new Date().getMonth() + 1;
+  var tahunAktif = new Date().getFullYear();
+  var filterJabatanAktif = 'SEMUA';
+  var filterPeriodeAktif = 'SEMUA';
+  var kataKunciPencarian = '';
+  var isAdmin = false;
+  var passwordAdminTersimpan = ''; // disertakan di setiap request tulis (simpan/hapus)
+  var agendaSedangDilihat = null;
+
+  var WARNA_JABATAN = {
+    'ADK': '#3b6ea5',
+    'Kepala Kantor': '#7a1128',
+    'Pegawai': '#2f7a5f',
+    'Gabungan': '#8a4fae'
+  };
+
+  var NAMA_BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  var NAMA_HARI = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+
+  // ===================== INIT =====================
+  window.addEventListener('DOMContentLoaded', function () {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_URL') !== -1) {
+      document.getElementById('calendarGrid').innerHTML =
+        '<div class="loading-text">APPS_SCRIPT_URL belum diisi. Buka file index.html, ganti nilai APPS_SCRIPT_URL dengan URL Web App Apps Script kamu.</div>';
+      return;
+    }
+    muatUlangData();
+  });
+
+  function muatUlangData() {
+    document.getElementById('calendarGrid').innerHTML = '<div class="loading-text">Memuat kalender...</div>';
+    document.getElementById('daftarAgendaHariIni').innerHTML = '<div class="loading-text">Memuat agenda hari ini...</div>';
+
+    apiGet('list')
+      .then(function (res) {
+        if (!res.sukses) throw new Error(res.pesan || 'Gagal memuat data.');
+        semuaAgenda = res.data || [];
+        renderSemua();
+        tampilkanToast('Data agenda berhasil dimuat.', 'success');
+      })
+      .catch(function (err) {
+        document.getElementById('calendarGrid').innerHTML = '<div class="loading-text">Gagal memuat data: ' + err.message + '</div>';
+        tampilkanToast('Gagal memuat data: ' + err.message, 'error');
+      });
+  }
+
+  function renderSemua() {
+    renderKalender();
+    renderAgendaHariIni();
+  }
+
+  // ===================== FILTER =====================
+  function setFilterJabatan(val, btnEl) {
+    filterJabatanAktif = val;
+    document.querySelectorAll('#pillJabatan .pill-btn').forEach(function (b) { b.classList.remove('active'); });
+    btnEl.classList.add('active');
+    renderSemua();
+  }
+
+  function setFilterPeriode(val, btnEl) {
+    filterPeriodeAktif = val;
+    document.querySelectorAll('#pillPeriode .pill-btn').forEach(function (b) { b.classList.remove('active'); });
+    btnEl.classList.add('active');
+    renderSemua();
+  }
+
+  function onSearchChange() {
+    kataKunciPencarian = document.getElementById('inputPencarian').value.trim().toLowerCase();
+    renderSemua();
+  }
+
+  function cocokFilterDasar(item) {
+    if (filterJabatanAktif !== 'SEMUA' && item.jabatan !== filterJabatanAktif) return false;
+    if (kataKunciPencarian) {
+      var gabungan = (item.judul + ' ' + item.tempat + ' ' + item.dihadiri + ' ' + item.nomorSurat).toLowerCase();
+      if (gabungan.indexOf(kataKunciPencarian) === -1) return false;
+    }
+    return true;
+  }
+
+  function cocokPeriode(tanggalIso) {
+    if (filterPeriodeAktif === 'SEMUA') return true;
+    var target = new Date(tanggalIso + 'T00:00:00');
+    var now = new Date(); now.setHours(0,0,0,0);
+
+    if (filterPeriodeAktif === 'HARI_INI') return isSameDate(target, now);
+    if (filterPeriodeAktif === 'BESOK') {
+      var besok = new Date(now); besok.setDate(besok.getDate() + 1);
+      return isSameDate(target, besok);
+    }
+    if (filterPeriodeAktif === 'MINGGU_INI') {
+      var awalMinggu = new Date(now); awalMinggu.setDate(now.getDate() - now.getDay());
+      var akhirMinggu = new Date(awalMinggu); akhirMinggu.setDate(awalMinggu.getDate() + 6);
+      return target >= awalMinggu && target <= akhirMinggu;
+    }
+    if (filterPeriodeAktif === 'BULAN_INI') {
+      return target.getMonth() === now.getMonth() && target.getFullYear() === now.getFullYear();
+    }
+    return true;
+  }
+
+  function isSameDate(a, b) {
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  // ===================== NAVIGASI BULAN =====================
+  function gantiBulan(delta) {
+    bulanAktif += delta;
+    if (bulanAktif > 12) { bulanAktif = 1; tahunAktif++; }
+    if (bulanAktif < 1) { bulanAktif = 12; tahunAktif--; }
+    renderKalender();
+  }
+
+  function kembaliKeBulanIni() {
+    var skrg = new Date();
+    bulanAktif = skrg.getMonth() + 1;
+    tahunAktif = skrg.getFullYear();
+    renderKalender();
+  }
+
+  // ===================== RENDER KALENDER =====================
+  function renderKalender() {
+    document.getElementById('labelBulanTahun').innerText = NAMA_BULAN[bulanAktif - 1] + ' ' + tahunAktif;
+
+    var jumlahHari = new Date(tahunAktif, bulanAktif, 0).getDate();
+    var hariPertama = new Date(tahunAktif, bulanAktif - 1, 1).getDay();
+
+    var agendaPerTanggal = {};
+    semuaAgenda.forEach(function (item) {
+      if (!cocokFilterDasar(item)) return;
+      var d = new Date(item.tanggal + 'T00:00:00');
+      if (d.getMonth() !== (bulanAktif - 1) || d.getFullYear() !== tahunAktif) return;
+      if (!agendaPerTanggal[item.tanggal]) agendaPerTanggal[item.tanggal] = [];
+      agendaPerTanggal[item.tanggal].push(item);
+    });
+
+    var now = new Date();
+    var html = '';
+
+    for (var i = 0; i < hariPertama; i++) html += '<div class="day-cell kosong"></div>';
+
+    for (var d = 1; d <= jumlahHari; d++) {
+      var tglIso = tahunAktif + '-' + String(bulanAktif).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      var listHariIni = agendaPerTanggal[tglIso] || [];
+      var isHariIni = isSameDate(new Date(tahunAktif, bulanAktif - 1, d), now);
+      var diLuarPeriode = !cocokPeriode(tglIso);
+
+      var kelas = 'day-cell' + (isHariIni ? ' hari-ini' : '') + (listHariIni.length > 0 ? ' ada-agenda' : '');
+      var opacityStyle = (diLuarPeriode && filterPeriodeAktif !== 'SEMUA') ? ' style="opacity:0.35;"' : '';
+      var klik = listHariIni.length > 0 ? (' onclick="bukaDetailTanggal(\'' + tglIso + '\')"') : '';
+
+      html += '<div class="' + kelas + '"' + opacityStyle + klik + '>';
+      html += '<div class="day-number">' + d + '</div>';
+      html += '<div class="day-agenda-list">';
+
+      var sedangFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      var maxTampil = sedangFullscreen ? 5 : 3;
+      for (var j = 0; j < Math.min(listHariIni.length, maxTampil); j++) {
+        var it = listHariIni[j];
+        var warna = WARNA_JABATAN[it.jabatan] || '#888';
+        html += '<div class="day-agenda-chip" style="background:' + warna + '" title="' + escapeHtml(it.judul) + '">' + escapeHtml(it.judul) + '</div>';
+      }
+      if (listHariIni.length > maxTampil) {
+        html += '<div class="day-agenda-more">+' + (listHariIni.length - maxTampil) + ' lainnya</div>';
+      }
+      html += '</div></div>';
+    }
+
+    document.getElementById('calendarGrid').innerHTML = html;
+    window._agendaPerTanggalAktif = agendaPerTanggal;
+  }
+
+  function bukaDetailTanggal(tglIso) {
+    var list = (window._agendaPerTanggalAktif && window._agendaPerTanggalAktif[tglIso]) || [];
+    if (list.length === 0) return;
+    if (list.length === 1) {
+      tampilkanModalDetail(list[0]);
+    } else {
+      tampilkanModalDaftarTanggal(tglIso, list);
+    }
+  }
+
+  function tampilkanModalDaftarTanggal(tglIso, list) {
+    var tglObj = new Date(tglIso + 'T00:00:00');
+    document.getElementById('daftarTanggalJudul').innerText =
+      NAMA_HARI[tglObj.getDay()] + ', ' + tglObj.getDate() + ' ' + NAMA_BULAN[tglObj.getMonth()] + ' ' + tglObj.getFullYear() +
+      ' (' + list.length + ' agenda)';
+
+    var urut = list.slice().sort(function (a, b) { return (a.jamMulai || '').localeCompare(b.jamMulai || ''); });
+
+    var html = '';
+    urut.forEach(function (item) {
+      var warna = WARNA_JABATAN[item.jabatan] || '#888';
+      html += '<div class="list-agenda-item" onclick=\'pilihAgendaDariDaftar(' + JSON.stringify(item).replace(/'/g, "&#39;") + ')\'>';
+      html += '<span class="color-dot" style="background:' + warna + '"></span>';
+      html += '<div class="list-agenda-item-body">';
+      html += '<div class="list-agenda-item-title">' + escapeHtml(item.judul) + '</div>';
+      html += '<div class="list-agenda-item-meta"><i class="fas fa-clock"></i> ' + escapeHtml(item.jamMulai) + ' &middot; ' + escapeHtml(item.jabatan) + '</div>';
+      html += '</div>';
+      html += '<i class="fas fa-chevron-right chevron"></i>';
+      html += '</div>';
+    });
+
+    document.getElementById('daftarTanggalIsi').innerHTML = html;
+    bukaModal('modalDaftarTanggal');
+  }
+
+  function pilihAgendaDariDaftar(item) {
+    tutupModal('modalDaftarTanggal');
+    tampilkanModalDetail(item);
+  }
+
+  // ===================== RENDER PANEL HARI INI =====================
+  function renderAgendaHariIni() {
+    var now = new Date();
+    var tglIsoHariIni = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    document.getElementById('labelTanggalHariIni').innerText = NAMA_HARI[now.getDay()] + ', ' + now.getDate() + ' ' + NAMA_BULAN[now.getMonth()] + ' ' + now.getFullYear();
+
+    var listHariIni = semuaAgenda.filter(function (item) {
+      return item.tanggal === tglIsoHariIni && cocokFilterDasar(item);
+    });
+
+    var cont = document.getElementById('daftarAgendaHariIni');
+    if (listHariIni.length === 0) {
+      cont.innerHTML = '<div class="empty-state"><i class="fas fa-mug-hot"></i>Tidak ada agenda untuk hari ini.</div>';
+      return;
+    }
+
+    listHariIni.sort(function(a,b){ return (a.jamMulai||'').localeCompare(b.jamMulai||''); });
+
+    var html = '';
+    listHariIni.forEach(function (item) {
+      var warna = WARNA_JABATAN[item.jabatan] || '#888';
+      html += '<div class="agenda-item-mini" onclick=\'tampilkanModalDetail(' + JSON.stringify(item).replace(/'/g, "&#39;") + ')\'>';
+      html += '<div class="color-bar" style="background:' + warna + '"></div>';
+      html += '<div class="agenda-item-mini-body">';
+      html += '<div class="agenda-item-mini-title">' + escapeHtml(item.judul) + '</div>';
+      html += '<div class="agenda-item-mini-meta"><i class="fas fa-location-dot"></i> ' + escapeHtml(item.tempat) + '</div>';
+      html += '</div>';
+      html += '<div class="agenda-item-mini-jam">' + escapeHtml(item.jamMulai) + '</div>';
+      html += '</div>';
+    });
+    cont.innerHTML = html;
+  }
+
+  // ===================== MODAL DETAIL AGENDA =====================
+  function tampilkanModalDetail(item) {
+    agendaSedangDilihat = item;
+    document.getElementById('detailJudul').innerText = item.judul;
+    var warna = WARNA_JABATAN[item.jabatan] || '#888';
+    var badge = document.getElementById('detailJabatanBadge');
+    badge.innerText = item.jabatan;
+    badge.style.background = warna;
+
+    document.getElementById('detailNomorSurat').innerText = item.nomorSurat || '-';
+
+    var tglObj = new Date(item.tanggal + 'T00:00:00');
+    document.getElementById('detailTanggal').innerText = NAMA_HARI[tglObj.getDay()] + ', ' + tglObj.getDate() + ' ' + NAMA_BULAN[tglObj.getMonth()] + ' ' + tglObj.getFullYear();
+
+    var jamText = (item.jamMulai || '-') + (item.jamSelesai && item.jamSelesai !== '-' ? (' - ' + item.jamSelesai) : '');
+    document.getElementById('detailJam').innerText = jamText;
+    document.getElementById('detailTempat').innerText = item.tempat || '-';
+    document.getElementById('detailDihadiri').innerText = item.dihadiri || '-';
+
+    var baris_link = document.getElementById('baris_link');
+    if (item.link) {
+      baris_link.style.display = 'flex';
+      document.getElementById('detailLink').innerHTML = '<a href="' + item.link + '" target="_blank" rel="noopener">' + item.link + '</a>';
+    } else {
+      baris_link.style.display = 'none';
+    }
+
+    var baris_ket = document.getElementById('baris_keterangan');
+    if (item.keterangan) {
+      baris_ket.style.display = 'flex';
+      document.getElementById('detailKeterangan').innerText = item.keterangan;
+    } else {
+      baris_ket.style.display = 'none';
+    }
+
+    document.getElementById('modalFootAdmin').style.display = isAdmin ? 'flex' : 'none';
+    bukaModal('modalDetail');
+  }
+
+  function editAgendaDariDetail() {
+    if (!agendaSedangDilihat) return;
+    tutupModal('modalDetail');
+    bukaFormAgenda(agendaSedangDilihat);
+  }
+
+  function hapusAgendaDariDetail() {
+    if (!agendaSedangDilihat) return;
+    if (!confirm('Yakin ingin menghapus agenda "' + agendaSedangDilihat.judul + '"?')) return;
+
+    apiPost('hapus', { id: agendaSedangDilihat.id, password: passwordAdminTersimpan })
+      .then(function (res) {
+        if (res.sukses) {
+          tampilkanToast(res.pesan, 'success');
+          tutupModal('modalDetail');
+          muatUlangData();
+        } else {
+          tampilkanToast(res.pesan, 'error');
+        }
+      })
+      .catch(function (err) { tampilkanToast('Gagal menghapus: ' + err.message, 'error'); });
+  }
+
+  // ===================== ADMIN: LOGIN =====================
+  function onKlikTombolAdmin() {
+    if (isAdmin) {
+      if (confirm('Keluar dari mode Admin?')) {
+        isAdmin = false;
+        passwordAdminTersimpan = '';
+        document.getElementById('btnAdmin').classList.remove('is-active');
+        document.getElementById('labelBtnAdmin').innerText = 'Admin';
+        document.getElementById('adminBar').classList.remove('show');
+        renderSemua();
+      }
+      return;
+    }
+    document.getElementById('inputPasswordAdmin').value = '';
+    bukaModal('modalLogin');
+    setTimeout(function () { document.getElementById('inputPasswordAdmin').focus(); }, 150);
+  }
+
+  function submitLoginAdmin() {
+    var pass = document.getElementById('inputPasswordAdmin').value;
+    if (!pass) { tampilkanToast('Masukkan password admin!', 'error'); return; }
+
+    apiPost('login', { password: pass })
+      .then(function (res) {
+        if (res.sukses) {
+          isAdmin = true;
+          passwordAdminTersimpan = pass; // disimpan di memori tab ini saja, dikirim ulang saat simpan/hapus
+          document.getElementById('btnAdmin').classList.add('is-active');
+          document.getElementById('labelBtnAdmin').innerText = 'Admin Aktif';
+          document.getElementById('adminBar').classList.add('show');
+          tutupModal('modalLogin');
+          tampilkanToast(res.pesan, 'success');
+          renderSemua();
+        } else {
+          tampilkanToast(res.pesan, 'error');
+        }
+      })
+      .catch(function (err) { tampilkanToast('Gagal login: ' + err.message, 'error'); });
+  }
+
+  // ===================== ADMIN: FORM TAMBAH / EDIT =====================
+  function bukaFormAgenda(itemUntukEdit) {
+    var form = document.getElementById('formAgenda');
+    form.reset();
+
+    if (itemUntukEdit) {
+      document.getElementById('judulModalForm').innerText = 'Edit Agenda';
+      document.getElementById('fId').value = itemUntukEdit.id;
+      document.getElementById('fNomorSurat').value = itemUntukEdit.nomorSurat === '-' ? '' : itemUntukEdit.nomorSurat;
+      document.getElementById('fJabatan').value = itemUntukEdit.jabatan;
+      document.getElementById('fJudul').value = itemUntukEdit.judul;
+      document.getElementById('fTanggal').value = itemUntukEdit.tanggal;
+      document.getElementById('fJamMulai').value = itemUntukEdit.jamMulai === '-' ? '' : itemUntukEdit.jamMulai;
+      document.getElementById('fJamSelesai').value = itemUntukEdit.jamSelesai === '-' ? '' : itemUntukEdit.jamSelesai;
+      document.getElementById('fTempat').value = itemUntukEdit.tempat === '-' ? '' : itemUntukEdit.tempat;
+      document.getElementById('fDihadiri').value = itemUntukEdit.dihadiri === '-' ? '' : itemUntukEdit.dihadiri;
+      document.getElementById('fLink').value = itemUntukEdit.link || '';
+      document.getElementById('fKeterangan').value = itemUntukEdit.keterangan || '';
+    } else {
+      document.getElementById('judulModalForm').innerText = 'Tambah Agenda Baru';
+      document.getElementById('fId').value = '';
+    }
+    bukaModal('modalForm');
+  }
+
+  function submitFormAgenda(e) {
+    e.preventDefault();
+    var btn = document.getElementById('btnSubmitForm');
+    btn.disabled = true;
+    btn.innerText = 'Menyimpan...';
+
+    var data = {
+      id: document.getElementById('fId').value,
+      nomorSurat: document.getElementById('fNomorSurat').value,
+      jabatan: document.getElementById('fJabatan').value,
+      judul: document.getElementById('fJudul').value,
+      tanggal: document.getElementById('fTanggal').value,
+      jamMulai: document.getElementById('fJamMulai').value,
+      jamSelesai: document.getElementById('fJamSelesai').value,
+      tempat: document.getElementById('fTempat').value,
+      dihadiri: document.getElementById('fDihadiri').value,
+      link: document.getElementById('fLink').value,
+      keterangan: document.getElementById('fKeterangan').value,
+      password: passwordAdminTersimpan
+    };
+
+    apiPost('simpan', data)
+      .then(function (res) {
+        btn.disabled = false;
+        btn.innerText = 'Simpan Agenda';
+        if (res.sukses) {
+          tampilkanToast(res.pesan, 'success');
+          tutupModal('modalForm');
+          muatUlangData();
+        } else {
+          tampilkanToast(res.pesan, 'error');
+        }
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.innerText = 'Simpan Agenda';
+        tampilkanToast('Gagal menyimpan: ' + err.message, 'error');
+      });
+  }
+
+  // ===================== FULLSCREEN =====================
+  function toggleFullscreen() {
+    var el = document.documentElement;
+    var sedangFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+
+    if (!sedangFullscreen) {
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      else tampilkanToast('Browser ini tidak mendukung mode layar penuh.', 'error');
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
+    }
+  }
+
+  function perbaruiIkonFullscreen() {
+    var aktif = document.fullscreenElement || document.webkitFullscreenElement;
+    var icon = document.getElementById('iconFullscreen');
+    var btn = document.getElementById('btnFullscreen');
+    if (aktif) {
+      icon.classList.remove('fa-expand');
+      icon.classList.add('fa-compress');
+      btn.title = 'Keluar layar penuh';
+    } else {
+      icon.classList.remove('fa-compress');
+      icon.classList.add('fa-expand');
+      btn.title = 'Layar penuh';
+    }
+    if (semuaAgenda && semuaAgenda.length >= 0) renderKalender();
+  }
+
+  document.addEventListener('fullscreenchange', perbaruiIkonFullscreen);
+  document.addEventListener('webkitfullscreenchange', perbaruiIkonFullscreen);
+
+  // ===================== UTILITAS MODAL / TOAST =====================
+  function bukaModal(id) { document.getElementById(id).classList.add('show'); }
+  function tutupModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  document.querySelectorAll('.modal-overlay').forEach(function (ov) {
+    ov.addEventListener('click', function (e) {
+      if (e.target === ov) ov.classList.remove('show');
+    });
+  });
+
+  function tampilkanToast(pesan, jenis) {
+    var container = document.getElementById('toastContainer');
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + (jenis || 'success');
+    toast.innerText = pesan;
+    container.appendChild(toast);
+    setTimeout(function () { toast.remove(); }, 3200);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.toString()
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+</script>
+</body>
+</html>
