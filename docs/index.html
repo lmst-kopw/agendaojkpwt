@@ -255,6 +255,19 @@
   </div>
 </div>
 
+<!-- ==================== MODAL: KONFIRMASI HAPUS AGENDA ==================== -->
+<div class="modal-overlay" id="modalKonfirmasiHapus">
+  <div class="modal-box modal-box-konfirmasi">
+    <div class="konfirmasi-icon"><i class="fas fa-trash"></i></div>
+    <div class="konfirmasi-title">Hapus agenda ini?</div>
+    <div class="konfirmasi-sub" id="konfirmasiHapusJudul">Agenda yang sudah dihapus tidak bisa dikembalikan lagi.</div>
+    <div class="konfirmasi-actions">
+      <button class="btn-flat konfirmasi-batal" onclick="tutupModal('modalKonfirmasiHapus')">Batal</button>
+      <button class="btn-flat konfirmasi-keluar" onclick="konfirmasiHapusAgenda()">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== MODAL: KONFIRMASI KELUAR ADMIN ==================== -->
 <div class="modal-overlay" id="modalKonfirmasiLogout">
   <div class="modal-box modal-box-konfirmasi">

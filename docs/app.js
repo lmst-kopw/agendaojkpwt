@@ -1,4 +1,4 @@
-// =====================================================================
+  // =====================================================================
   // GANTI URL DI BAWAH INI dengan URL Web App Apps Script kamu
   // (Deploy > New deployment > Web app, Execute as Me, Access: Anyone)
   // Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
@@ -12,46 +12,6 @@
   const SITE_LINK = "https://lmst-kopw.github.io/agendaojkpwt/";
 
   // ===================== HELPER KOMUNIKASI KE APPS SCRIPT =====================
-
-  /**
-   * Ambil response sebagai TEXT dulu, baru coba parse jadi JSON secara manual.
-   * Ini sengaja dipisah dari fetch(...).then(r => r.json()) supaya kalau server
-   * (atau lapisan redirect Google di antaranya) balikin HTML/halaman error,
-   * errornya jelas dan mudah dibedakan dari error jaringan biasa -- bukan
-   * exception mentah "Unexpected token '<'" yang membingungkan di UI.
-   */
-  function parseResponseAmanSebagaiJson(r) {
-    if (!r.ok) {
-      throw new Error('Server merespons status ' + r.status);
-    }
-    return r.text().then(function (text) {
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        throw new Error('Respons server bukan format data yang diharapkan (bukan JSON)');
-      }
-    });
-  }
-
-  /**
-   * Fetch dengan retry otomatis (khusus GET -- aman diulang karena tidak
-   * mengubah data). Kalau percobaan pertama gagal (network hiccup, redirect
-   * Google gagal sesaat, dsb), otomatis coba lagi sekali setelah jeda singkat
-   * sebelum benar-benar dianggap gagal.
-   */
-  function fetchDenganRetry(url, percobaanKe) {
-    percobaanKe = percobaanKe || 1;
-    return fetch(url)
-      .then(parseResponseAmanSebagaiJson)
-      .catch(function (err) {
-        if (percobaanKe < 2) {
-          return new Promise(function (resolve) { setTimeout(resolve, 800); })
-            .then(function () { return fetchDenganRetry(url, percobaanKe + 1); });
-        }
-        throw err;
-      });
-  }
-
   function apiGet(action, params) {
     var url = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action);
     if (params) {
@@ -59,20 +19,18 @@
         url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
       });
     }
-    return fetchDenganRetry(url);
+    return fetch(url).then(function (r) { return r.json(); });
   }
 
   function apiPost(action, payload) {
     // Content-Type "text/plain" sengaja dipakai supaya browser TIDAK
     // mengirim CORS preflight (OPTIONS), karena Apps Script Web App
     // tidak bisa menjawab preflight tersebut.
-    // CATATAN: sengaja TIDAK diberi auto-retry seperti apiGet, karena POST
-    // mengubah data (simpan/hapus) -- retry otomatis berisiko submit ganda.
     return fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: action, payload: payload })
-    }).then(parseResponseAmanSebagaiJson);
+    }).then(function (r) { return r.json(); });
   }
 
   // ===================== STATE GLOBAL =====================
@@ -724,7 +682,15 @@
 
   function hapusAgendaDariDetail() {
     if (!agendaSedangDilihat) return;
-    if (!confirm('Yakin ingin menghapus agenda "' + agendaSedangDilihat.judul + '"?')) return;
+    var judulEl = document.getElementById('konfirmasiHapusJudul');
+    if (judulEl) judulEl.innerHTML = 'Agenda <strong>"' + escapeHtml(agendaSedangDilihat.judul) + '"</strong> akan dihapus dan tidak bisa dikembalikan lagi.';
+    bukaModal('modalKonfirmasiHapus');
+  }
+
+  /** Dipanggil dari tombol "Ya, Hapus" di modal konfirmasi hapus agenda. */
+  function konfirmasiHapusAgenda() {
+    if (!agendaSedangDilihat) return;
+    tutupModal('modalKonfirmasiHapus');
 
     apiPost('hapus', { id: agendaSedangDilihat.id, password: passwordAdminTersimpan })
       .then(function (res) {
