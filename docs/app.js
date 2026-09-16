@@ -11,27 +11,64 @@
   // Link webapps ini sendiri, dipakai di penutup teks broadcast agenda ke WA -- ganti kalau alamatnya berubah
   const SITE_LINK = "https://lmst-kopw.github.io/agendaojkpwt/";
 
-  // ===================== HELPER KOMUNIKASI KE APPS SCRIPT =====================
-  function apiGet(action, params) {
-    var url = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action);
-    if (params) {
-      Object.keys(params).forEach(function (k) {
-        url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
-      });
-    }
-    return fetch(url).then(function (r) { return r.json(); });
-  }
+// ===================== HELPER KOMUNIKASI KE APPS SCRIPT =====================
 
-  function apiPost(action, payload) {
-    // Content-Type "text/plain" sengaja dipakai supaya browser TIDAK
-    // mengirim CORS preflight (OPTIONS), karena Apps Script Web App
-    // tidak bisa menjawab preflight tersebut.
-    return fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: action, payload: payload })
-    }).then(function (r) { return r.json(); });
+/**
+ * Fetch + parse JSON, dengan retry otomatis.
+ * Kalau percobaan pertama gagal (misal karena Apps Script baru "bangun"
+ * dari idle lama dan sempat balikin halaman HTML alih-alih JSON), fungsi
+ * ini otomatis coba lagi setelah jeda singkat -- sampai maksimal
+ * `maxRetry` kali -- sebelum benar-benar melempar error ke pemanggil.
+ */
+function fetchDenganRetry(url, opsiFetch, percobaanKe) {
+  percobaanKe = percobaanKe || 1;
+  var maxRetry = 3;
+  var jedaMs = 1500; // jeda antar percobaan, dalam milidetik
+
+  return fetch(url, opsiFetch)
+    .then(function (r) {
+      return r.text().then(function (teks) {
+        try {
+          return JSON.parse(teks);
+        } catch (e) {
+          // Respons bukan JSON valid (biasanya HTML dari Google saat cold start) -> anggap gagal, biar masuk retry
+          throw new Error('Respons server bukan JSON (kemungkinan Apps Script baru dibangunkan dari idle).');
+        }
+      });
+    })
+    .catch(function (err) {
+      if (percobaanKe < maxRetry) {
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            resolve(fetchDenganRetry(url, opsiFetch, percobaanKe + 1));
+          }, jedaMs);
+        });
+      }
+      // Sudah habis jatah retry -> lempar error asli ke pemanggil
+      throw err;
+    });
+}
+
+function apiGet(action, params) {
+  var url = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action);
+  if (params) {
+    Object.keys(params).forEach(function (k) {
+      url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    });
   }
+  return fetchDenganRetry(url);
+}
+
+function apiPost(action, payload) {
+  // Content-Type "text/plain" sengaja dipakai supaya browser TIDAK
+  // mengirim CORS preflight (OPTIONS), karena Apps Script Web App
+  // tidak bisa menjawab preflight tersebut.
+  return fetchDenganRetry(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: action, payload: payload })
+  });
+}
 
   // ===================== STATE GLOBAL =====================
   var semuaAgenda = [];         // seluruh data agenda dari server
